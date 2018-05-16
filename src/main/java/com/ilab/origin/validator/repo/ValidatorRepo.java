@@ -7,4 +7,5 @@ import com.ilab.origin.validator.model.ValidationData;
 public interface ValidatorRepo extends MongoRepository<ValidationData, String> {
 
 	public ValidationData findByQrKey(String qrKey);
+		
 }

@@ -14,6 +14,5 @@ public class MongoClientConfig {
     public MongoClient createConnection() {
     	String mongoIp = "127.0.0.1:27017";
         return new MongoClient(mongoIp);
-
     }
 }
