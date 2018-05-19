@@ -1,5 +1,7 @@
 package com.ilab.origin.validator.model;
 
+import java.util.Map;
+
 import org.springframework.data.annotation.Id;
 
 public class ValidationData {
@@ -10,17 +12,27 @@ public class ValidationData {
 	@Id
     public String id;
 
-	private String qrKey;
+	private String qrcode;
 	private String productName;
 	private String merchantId;
+	private Map<String, String> dataMap;
 	private boolean isSold = NOT_SOLD;
 	
-	public String getQrKey() {
-		return qrKey;
+	
+	public String getQrcode() {
+		return qrcode;
 	}
-	public void setQrKey(String qrKey) {
-		this.qrKey = qrKey;
+	public void setQrcode(String qrcode) {
+		this.qrcode = qrcode;
 	}
+	
+	public Map<String, String> getDataMap() {
+		return dataMap;
+	}
+	public void setDataMap(Map<String, String> dataMap) {
+		this.dataMap = dataMap;
+	}
+	
 	public String getProductName() {
 		return productName;
 	}

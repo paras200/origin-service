@@ -57,7 +57,7 @@ public class ValidationService {
 		for (int i =0 ; i < cunt; i++) {
 			ValidationData vd = new ValidationData();
 			String qrcode = inputData.getMerchantKey()+ "_" + uniqueId + "_" + i;
-			vd.setQrKey(qrcode);
+			vd.setQrcode(qrcode);
 			vd.setProductName(inputData.getProductName());
 			vd.setMerchantId(inputData.getMerchantId());
 			vDataList.add(vd);
@@ -67,15 +67,15 @@ public class ValidationService {
 		System.out.println("QR codes saved for : " + vDataList);
 		return vDataList;
 	}
-	
+	  
 	@RequestMapping("/getByQrCode")
 	public ValidationData getValidationData(@RequestParam(value="qrcode") String qrcode){
-		return repository.findByQrKey(qrcode);
+		return repository.findByQrcode(qrcode);
 	}
 	
 	@RequestMapping("/markSold")
 	public ValidationData markSold(@RequestParam(value="qrcode") String qrcode){
-		ValidationData vd = repository.findByQrKey(qrcode);
+		ValidationData vd = repository.findByQrcode(qrcode);
 		vd.setSold(ValidationData.SOLD);
 		return repository.save(vd);
 	}
