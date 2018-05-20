@@ -74,7 +74,7 @@ public class UserRepoTest {
         
         vData = new ValidationData();
         vData.setId("123");
-        vData.setQrcode("code123");
+        vData.setQrCode("code123");
         vData.setProductName("Swift");
         
 		Map<String, String> dataMap = new HashMap<>(); 

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ilab.origin.usermgt.model.Merchant;
 import com.ilab.origin.usermgt.repo.MerchantRepository;
 import com.ilab.origin.validator.model.QRGenInputData;
+import com.ilab.origin.validator.model.Result;
 import com.ilab.origin.validator.model.ValidationData;
 import com.ilab.origin.validator.repo.ValidatorRepo;
 
@@ -28,16 +29,17 @@ public class ValidationService {
 	
 	private MerchantRepository merchantRepo;
 	
-	@PostMapping("/saveQRCode")	
+	@PostMapping("/save-qrcode")	
 	public ValidationData saveQRCode(@RequestBody ValidationData vData){		
 		System.out.println(" saving QR code :" + vData);
 		return repository.save(vData);
 	}
 	
-	@PostMapping("/saveAllCodes")	
-	public void saveAllQRCode(@RequestBody List<ValidationData> vDataList){		
+	@PostMapping("/save-all-codes")	
+	public Result saveAllQRCode(@RequestBody List<ValidationData> vDataList){		
 		System.out.println(" saving QR code :" + vDataList);
 		repository.save(vDataList);
+		return new Result();
 	}
 	
 	@PostMapping("/generate-qrcode")	
@@ -57,7 +59,7 @@ public class ValidationService {
 		for (int i =0 ; i < cunt; i++) {
 			ValidationData vd = new ValidationData();
 			String qrcode = inputData.getMerchantKey()+ "_" + uniqueId + "_" + i;
-			vd.setQrcode(qrcode);
+			vd.setQrCode(qrcode);
 			vd.setProductName(inputData.getProductName());
 			vd.setMerchantId(inputData.getMerchantId());
 			vDataList.add(vd);
@@ -68,14 +70,19 @@ public class ValidationService {
 		return vDataList;
 	}
 	  
-	@RequestMapping("/getByQrCode")
+	@RequestMapping("/get-by-qrcode")
 	public ValidationData getValidationData(@RequestParam(value="qrcode") String qrcode){
-		return repository.findByQrcode(qrcode);
+		return repository.findByQrCode(qrcode);
 	}
 	
-	@RequestMapping("/markSold")
+	@RequestMapping("/get-by-merchant")
+	public List<ValidationData> getByMerchant(@RequestParam(value="merchantId") String merchantId){
+		return repository.findByMerchantId(merchantId);
+	}
+	
+	@RequestMapping("/mark-sold")
 	public ValidationData markSold(@RequestParam(value="qrcode") String qrcode){
-		ValidationData vd = repository.findByQrcode(qrcode);
+		ValidationData vd = repository.findByQrCode(qrcode);
 		vd.setSold(ValidationData.SOLD);
 		return repository.save(vd);
 	}

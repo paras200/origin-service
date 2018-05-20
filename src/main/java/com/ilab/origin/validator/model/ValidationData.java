@@ -12,20 +12,19 @@ public class ValidationData {
 	@Id
     public String id;
 
-	private String qrcode;
+	private String qrCode;
 	private String productName;
 	private String merchantId;
 	private Map<String, String> dataMap;
 	private boolean isSold = NOT_SOLD;
 	
 	
-	public String getQrcode() {
-		return qrcode;
+	public String getQrCode() {
+		return qrCode;
 	}
-	public void setQrcode(String qrcode) {
-		this.qrcode = qrcode;
+	public void setQrCode(String qrCode) {
+		this.qrCode = qrCode;
 	}
-	
 	public Map<String, String> getDataMap() {
 		return dataMap;
 	}

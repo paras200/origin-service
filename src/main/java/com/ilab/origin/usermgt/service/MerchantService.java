@@ -39,7 +39,7 @@ public class MerchantService {
 		return repository.findByMerchantKey(merchantKey);
 	}
 	
-	@GetMapping("/get-merchantById")	
+	@GetMapping("/get-merchant-by-id")	
 	public Merchant findMerchantById(@RequestParam(value="merchantId") String merchantId){		
 		System.out.println(" retreive merchant detail for :" + merchantId);
 		return repository.findById(merchantId);
