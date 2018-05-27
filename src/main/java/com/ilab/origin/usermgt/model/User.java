@@ -1,6 +1,7 @@
 package com.ilab.origin.usermgt.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 public class User {
 
@@ -9,9 +10,17 @@ public class User {
 
 	private String mobileNumber;
 	private String location;
+	
+	@Indexed(unique=true)
 	private String userId; // email-id as user id
 	private String password;
 	private String merchantId; // for users belonging to Merchant
+	private String email;
+	private String firstName;
+	private String lastName;
+	
+	@Indexed
+	private String userType; 
 
 	public User(){
 		
@@ -62,7 +71,38 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-		
+	
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}	
+	
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public String getUserType() {
+		return userType;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
 
 	@Override
 	public String toString() {

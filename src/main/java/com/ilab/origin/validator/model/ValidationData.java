@@ -3,6 +3,7 @@ package com.ilab.origin.validator.model;
 import java.util.Map;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 public class ValidationData {
 
@@ -12,8 +13,12 @@ public class ValidationData {
 	@Id
     public String id;
 
+	@Indexed(unique=true)
 	private String qrCode;
+	
 	private String productName;
+	
+	@Indexed
 	private String merchantId;
 	private Map<String, String> dataMap;
 	private boolean isSold = NOT_SOLD;

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ilab.origin.usermgt.model.User;
 import com.ilab.origin.usermgt.repo.UserRepository;
+import com.ilab.origin.validator.model.Result;
 
 
 @RestController
@@ -36,4 +37,19 @@ public class UserService {
 	public List<User> getAllUsers(){
 		return repository.findAll();
 	}
+	
+	@RequestMapping("/user/login")
+	public Result isValidUser(@RequestParam(value="userId") String userId , @RequestParam(value="password") String password){
+		Result rs = new Result();
+		rs.setIsSuccess(false);
+		rs.setStatus("FAIL");
+		User u = repository.findByUserId(userId); 
+		if(u != null && u.getPassword().equals(password)){
+			rs.setIsSuccess(true);
+			rs.setToken("***234sdf*");
+			rs.setStatus("SUCCESS");
+		}			
+		
+		return rs;
+	} 
 }

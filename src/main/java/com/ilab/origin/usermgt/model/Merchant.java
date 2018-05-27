@@ -1,13 +1,16 @@
 package com.ilab.origin.usermgt.model;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 public class Merchant {
 
 	@Id
     public String id;
 
+	@Indexed(unique=true)
 	private String merchantKey;
+	
 	private String name;
 	private String phoneNumber;
 	private String mobileNumber;	
