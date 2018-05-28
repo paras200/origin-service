@@ -1,8 +1,10 @@
 package com.ilab.origin.usermgt.model;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+@EntityScan
 public class Merchant {
 
 	@Id

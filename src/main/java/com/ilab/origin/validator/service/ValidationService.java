@@ -27,6 +27,7 @@ public class ValidationService {
 	@Autowired
 	private ValidatorRepo repository;
 	
+	@Autowired
 	private MerchantRepository merchantRepo;
 	
 	@PostMapping("/save-qrcode")	

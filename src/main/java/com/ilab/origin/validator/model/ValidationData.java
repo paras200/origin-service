@@ -2,9 +2,13 @@ package com.ilab.origin.validator.model;
 
 import java.util.Map;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+import com.ilab.origin.usermgt.model.Location;
+
+@EntityScan
 public class ValidationData {
 
 	public static boolean SOLD = true;
@@ -23,6 +27,7 @@ public class ValidationData {
 	private Map<String, String> dataMap;
 	private boolean isSold = NOT_SOLD;
 	
+	private Location location;
 	
 	public String getQrCode() {
 		return qrCode;
@@ -58,5 +63,12 @@ public class ValidationData {
 	public void setSold(boolean isSold) {
 		this.isSold = isSold;
 	}
+	public Location getLocation() {
+		return location;
+	}
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+	
 		
 }

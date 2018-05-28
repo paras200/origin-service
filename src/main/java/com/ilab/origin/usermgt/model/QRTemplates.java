@@ -2,9 +2,11 @@ package com.ilab.origin.usermgt.model;
 
 import java.util.List;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+@EntityScan
 public class QRTemplates {
 
 	@Id

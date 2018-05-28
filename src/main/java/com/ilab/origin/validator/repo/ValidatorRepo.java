@@ -10,6 +10,6 @@ public interface ValidatorRepo extends MongoRepository<ValidationData, String> {
 
 	public ValidationData findByQrCode(String qrcode);
 	
-	public List<ValidationData> findByMerchantId(String qrcode);
+	public List<ValidationData> findByMerchantId(String merchantId);
 		
 }

@@ -1,8 +1,10 @@
 package com.ilab.origin.usermgt.model;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
+@EntityScan
 public class User {
 
 	@Id
@@ -13,6 +15,7 @@ public class User {
 	
 	@Indexed(unique=true)
 	private String userId; // email-id as user id
+	
 	private String password;
 	private String merchantId; // for users belonging to Merchant
 	private String email;

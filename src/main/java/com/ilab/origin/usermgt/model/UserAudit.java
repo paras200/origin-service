@@ -1,7 +1,9 @@
 package com.ilab.origin.usermgt.model;
 
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 
+@EntityScan
 public class UserAudit {
 
 	@Id
