@@ -6,6 +6,7 @@ public class Location {
 
 	private String longitude;
 	private String latitude;
+	private String address;// general string
 	
 	private String city;
 	private String state;
@@ -41,5 +42,12 @@ public class Location {
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
+	public String getAddress() {
+		return address;
+	}
+	public void setAddress(String address) {
+		this.address = address;
+	}
+	
 	
 }

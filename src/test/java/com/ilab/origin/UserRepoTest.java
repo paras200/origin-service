@@ -20,7 +20,7 @@ import com.ilab.origin.usermgt.repo.AuditRepository;
 import com.ilab.origin.usermgt.repo.MerchantRepository;
 import com.ilab.origin.usermgt.repo.TemplateRepository;
 import com.ilab.origin.usermgt.repo.UserRepository;
-import com.ilab.origin.validator.model.ValidationData;
+import com.ilab.origin.validator.model.OriginData;
 import com.ilab.origin.validator.repo.ValidatorRepo;
 
 
@@ -45,7 +45,7 @@ public class UserRepoTest {
     
     private User aks, nish;
     private Merchant maruti;
-    private ValidationData vData;
+    private OriginData vData;
 
     @Before
     public void setUp() {
@@ -72,7 +72,7 @@ public class UserRepoTest {
         maruti.setMobileNumber("10101010110");
         maruti = mrRepo.save(maruti);
         
-        vData = new ValidationData();
+        vData = new OriginData();
         vData.setId("123");
         vData.setQrCode("code123");
         vData.setProductName("Swift");

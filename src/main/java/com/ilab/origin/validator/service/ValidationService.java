@@ -16,7 +16,7 @@ import com.ilab.origin.usermgt.model.Merchant;
 import com.ilab.origin.usermgt.repo.MerchantRepository;
 import com.ilab.origin.validator.model.QRGenInputData;
 import com.ilab.origin.validator.model.Result;
-import com.ilab.origin.validator.model.ValidationData;
+import com.ilab.origin.validator.model.OriginData;
 import com.ilab.origin.validator.repo.ValidatorRepo;
 
 @RestController
@@ -31,20 +31,20 @@ public class ValidationService {
 	private MerchantRepository merchantRepo;
 	
 	@PostMapping("/save-qrcode")	
-	public ValidationData saveQRCode(@RequestBody ValidationData vData){		
+	public OriginData saveQRCode(@RequestBody OriginData vData){		
 		System.out.println(" saving QR code :" + vData);
 		return repository.save(vData);
 	}
 	
 	@PostMapping("/save-all-codes")	
-	public Result saveAllQRCode(@RequestBody List<ValidationData> vDataList){		
+	public Result saveAllQRCode(@RequestBody List<OriginData> vDataList){		
 		System.out.println(" saving QR code :" + vDataList);
 		repository.save(vDataList);
 		return new Result();
 	}
 	
 	@PostMapping("/generate-qrcode")	
-	public List<ValidationData> saveAllQRCode(@RequestBody QRGenInputData inputData){		
+	public List<OriginData> saveAllQRCode(@RequestBody QRGenInputData inputData){		
 		if(inputData.getMerchantId() == null){
 			//throw error
 		}
@@ -54,11 +54,11 @@ public class ValidationService {
 				inputData.setMerchantKey(merchant.getMerchantKey());
 			}
 		}
-		List<ValidationData> vDataList = new ArrayList<>();
+		List<OriginData> vDataList = new ArrayList<>();
 		UUID uniqueId = UUID.randomUUID();
 		int cunt = inputData.getCount();
 		for (int i =0 ; i < cunt; i++) {
-			ValidationData vd = new ValidationData();
+			OriginData vd = new OriginData();
 			String qrcode = inputData.getMerchantKey()+ "_" + uniqueId + "_" + i;
 			vd.setQrCode(qrcode);
 			vd.setProductName(inputData.getProductName());
@@ -72,19 +72,19 @@ public class ValidationService {
 	}
 	  
 	@RequestMapping("/get-by-qrcode")
-	public ValidationData getValidationData(@RequestParam(value="qrcode") String qrcode){
+	public OriginData getValidationData(@RequestParam(value="qrcode") String qrcode){
 		return repository.findByQrCode(qrcode);
 	}
 	
 	@RequestMapping("/get-by-merchant")
-	public List<ValidationData> getByMerchant(@RequestParam(value="merchantId") String merchantId){
+	public List<OriginData> getByMerchant(@RequestParam(value="merchantId") String merchantId){
 		return repository.findByMerchantId(merchantId);
 	}
 	
 	@RequestMapping("/mark-sold")
-	public ValidationData markSold(@RequestParam(value="qrcode") String qrcode){
-		ValidationData vd = repository.findByQrCode(qrcode);
-		vd.setSold(ValidationData.SOLD);
+	public OriginData markSold(@RequestParam(value="qrcode") String qrcode){
+		OriginData vd = repository.findByQrCode(qrcode);
+		vd.setSold(OriginData.SOLD);
 		return repository.save(vd);
 	}
 }

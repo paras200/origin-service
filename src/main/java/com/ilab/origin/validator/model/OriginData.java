@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import com.ilab.origin.usermgt.model.Location;
 
 @EntityScan
-public class ValidationData {
+public class OriginData {
 
 	public static boolean SOLD = true;
 	public static boolean NOT_SOLD = false;
@@ -19,6 +19,8 @@ public class ValidationData {
 
 	@Indexed(unique=true)
 	private String qrCode;
+	
+	private String qrKey;
 	
 	private String productName;
 	
@@ -69,6 +71,10 @@ public class ValidationData {
 	public void setLocation(Location location) {
 		this.location = location;
 	}
-	
-		
+	public String getQrKey() {
+		return qrKey;
+	}
+	public void setQrKey(String qrKey) {
+		this.qrKey = qrKey;
+	}		
 }

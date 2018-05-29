@@ -4,12 +4,12 @@ import java.util.List;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import com.ilab.origin.validator.model.ValidationData;
+import com.ilab.origin.validator.model.OriginData;
 
-public interface ValidatorRepo extends MongoRepository<ValidationData, String> {
+public interface ValidatorRepo extends MongoRepository<OriginData, String> {
 
-	public ValidationData findByQrCode(String qrcode);
+	public OriginData findByQrCode(String qrcode);
 	
-	public List<ValidationData> findByMerchantId(String merchantId);
+	public List<OriginData> findByMerchantId(String merchantId);
 		
 }
