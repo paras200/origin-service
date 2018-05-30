@@ -9,15 +9,16 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ilab.origin.usermgt.model.Merchant;
 import com.ilab.origin.usermgt.repo.MerchantRepository;
-import com.ilab.origin.validator.model.QRGenInputData;
-import com.ilab.origin.validator.model.Result;
 import com.ilab.origin.validator.model.OriginData;
 import com.ilab.origin.validator.model.OriginStatus;
+import com.ilab.origin.validator.model.QRGenInputData;
+import com.ilab.origin.validator.model.Result;
 import com.ilab.origin.validator.repo.ValidatorRepo;
 
 @RestController
@@ -72,17 +73,17 @@ public class ValidationService {
 		return vDataList;
 	}
 	  
-	@RequestMapping("/get-by-qrcode")
+	@RequestMapping(value="/get-by-qrcode" , method = { RequestMethod.GET, RequestMethod.POST })
 	public OriginData getValidationData(@RequestParam(value="qrcode") String qrcode){
 		return repository.findByQrCode(qrcode);
 	}
 	
-	@RequestMapping("/get-by-merchant")
+	@RequestMapping(value="/get-by-merchant" , method = { RequestMethod.GET, RequestMethod.POST })
 	public List<OriginData> getByMerchant(@RequestParam(value="merchantId") String merchantId){
 		return repository.findByMerchantId(merchantId);
 	}
 	
-	@RequestMapping("/mark-sold")
+	@RequestMapping(value="/mark-sold" , method = { RequestMethod.GET, RequestMethod.POST })
 	public OriginData markSold(@RequestBody OriginData vData){
 		OriginData vd = repository.findByQrCode(vData.getQrCode());
 		if(vd == null) {

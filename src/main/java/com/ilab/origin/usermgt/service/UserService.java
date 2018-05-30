@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,7 +23,7 @@ public class UserService {
 	@Autowired
     UserRepository repository;
 	
-	@RequestMapping("/user/findby-mobileNum")
+	@RequestMapping(value = "/user/findby-mobileNum" , method = { RequestMethod.GET, RequestMethod.POST })
 	public User getUser(@RequestParam(value="mobile", defaultValue="9999999999") String mobile){
 		return repository.findByMobileNumber(mobile);
 	}
@@ -33,12 +34,12 @@ public class UserService {
 		return repository.save(user);
 	}
 	
-	@RequestMapping("/users")
+	@RequestMapping(value = "/users" , method = { RequestMethod.GET, RequestMethod.POST })
 	public List<User> getAllUsers(){
 		return repository.findAll();
 	}
 	
-	@RequestMapping("/user/login")
+	@RequestMapping(value="/user/login" , method = { RequestMethod.GET, RequestMethod.POST })
 	public Result isValidUser(@RequestParam(value="userId") String userId , @RequestParam(value="password") String password){
 		Result rs = new Result();
 		rs.setIsSuccess(false);
