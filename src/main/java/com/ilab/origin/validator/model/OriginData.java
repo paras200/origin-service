@@ -28,8 +28,11 @@ public class OriginData {
 	private String merchantId;
 	private Map<String, String> dataMap;
 	private boolean isSold = NOT_SOLD;
+	private int status;
+	private String message;
 	
 	private Location location;
+	
 	
 	public String getQrCode() {
 		return qrCode;
@@ -65,16 +68,31 @@ public class OriginData {
 	public void setSold(boolean isSold) {
 		this.isSold = isSold;
 	}
+	
+	public String getQrKey() {
+		return qrKey;
+	}
+	public void setQrKey(String qrKey) {
+		this.qrKey = qrKey;
+	}
 	public Location getLocation() {
 		return location;
 	}
 	public void setLocation(Location location) {
 		this.location = location;
 	}
-	public String getQrKey() {
-		return qrKey;
+	
+	public int getStatus() {
+		return status;
 	}
-	public void setQrKey(String qrKey) {
-		this.qrKey = qrKey;
-	}		
+	public void setStatus(int status) {
+		this.status = status;
+	}
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	
 }

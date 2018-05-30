@@ -17,6 +17,7 @@ import com.ilab.origin.usermgt.repo.MerchantRepository;
 import com.ilab.origin.validator.model.QRGenInputData;
 import com.ilab.origin.validator.model.Result;
 import com.ilab.origin.validator.model.OriginData;
+import com.ilab.origin.validator.model.OriginStatus;
 import com.ilab.origin.validator.repo.ValidatorRepo;
 
 @RestController
@@ -82,10 +83,26 @@ public class ValidationService {
 	}
 	
 	@RequestMapping("/mark-sold")
-	public OriginData markSold(@RequestParam(value="qrcode") String qrcode){
-		OriginData vd = repository.findByQrCode(qrcode);
-		vd.setSold(OriginData.SOLD);
-		return repository.save(vd);
+	public OriginData markSold(@RequestBody OriginData vData){
+		OriginData vd = repository.findByQrCode(vData.getQrCode());
+		if(vd == null) {
+			// invalid product
+			vd = new OriginData();
+			vd.setStatus(OriginStatus.RED);
+			vd.setMessage(OriginStatus.getStatusMessage(OriginStatus.RED));
+		}else if(!vd.isSold()) {
+			// Valid product
+			vd.setSold(true);
+			vd.setLocation(vData.getLocation());
+			vd = repository.save(vd);
+			vd.setStatus(OriginStatus.GREEN);
+			vd.setMessage(OriginStatus.getStatusMessage(OriginStatus.GREEN));
+		}else {
+			// already sold
+			vd.setStatus(OriginStatus.AMBER);
+			vd.setMessage(OriginStatus.getStatusMessage(OriginStatus.AMBER));
+		}
+		return vd;
 	}
 }
  
