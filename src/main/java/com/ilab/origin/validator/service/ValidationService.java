@@ -89,18 +89,18 @@ public class ValidationService {
 		if(vd == null) {
 			// invalid product
 			vd = new OriginData();
-			vd.setStatus(OriginStatus.RED);
+			vd.setStatusCode(OriginStatus.RED);
 			vd.setMessage(OriginStatus.getStatusMessage(OriginStatus.RED));
 		}else if(!vd.isSold()) {
 			// Valid product
 			vd.setSold(true);
 			vd.setLocation(vData.getLocation());
 			vd = repository.save(vd);
-			vd.setStatus(OriginStatus.GREEN);
+			vd.setStatusCode(OriginStatus.GREEN);
 			vd.setMessage(OriginStatus.getStatusMessage(OriginStatus.GREEN));
 		}else {
 			// already sold
-			vd.setStatus(OriginStatus.AMBER);
+			vd.setStatusCode(OriginStatus.AMBER);
 			vd.setMessage(OriginStatus.getStatusMessage(OriginStatus.AMBER));
 		}
 		

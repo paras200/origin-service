@@ -28,7 +28,7 @@ public class OriginData {
 	private String merchantId;
 	private Map<String, String> dataMap;
 	private boolean isSold = NOT_SOLD;
-	private int status;
+	private int statusCode;
 	private String message;
 	
 	private Location location;
@@ -82,11 +82,11 @@ public class OriginData {
 		this.location = location;
 	}
 	
-	public int getStatus() {
-		return status;
+	public int getStatusCode() {
+		return statusCode;
 	}
-	public void setStatus(int status) {
-		this.status = status;
+	public void setStatusCode(int status) {
+		this.statusCode = status;
 	}
 	public String getMessage() {
 		return message;
