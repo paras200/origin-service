@@ -3,6 +3,8 @@ package com.ilab.origin.tracker.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -24,26 +26,28 @@ import com.ilab.origin.validator.model.Result;
 @CrossOrigin(origins = "*")
 @RequestMapping(path="/tracker")
 public class TrackingService {
+
+	private static Log log = LogFactory.getLog(TrackingService.class.getName());
 	
 	@Autowired
 	private TrackingRepository trackRepo;
 
 	@PostMapping("/save-qrcode")	
 	public TrackingData saveQRCode(@RequestBody TrackingData trackData){		
-		System.out.println(" saving QR code for tracking :" + trackData);
+		log.info(" saving QR code for tracking :" + trackData);
 		return trackRepo.save(trackData);
 	}
 	
 	@PostMapping("/save-all-codes")	
 	public Result saveAllQRCode(@RequestBody List<TrackingData> trackDataList){		
-		System.out.println(" saving QR code for tracking :" + trackDataList);
+		log.info(" saving QR code for tracking :" + trackDataList);
 		trackRepo.save(trackDataList);
 		return new Result();
 	}
 	
 	@PostMapping("/save-location")	
 	public Result saveTrackingData(@RequestBody LocationTO location) throws OriginException{		
-		System.out.println(" saving tracking location for qrcode: " + location.getQrCode());
+		log.info(" saving tracking location for qrcode: " + location.getQrCode());
 		if(StringUtils.isEmpty(location.getQrCode()) || location.getLocation() == null)
 		{
 			throw new OriginException("qrcode or location is null");
@@ -55,12 +59,12 @@ public class TrackingService {
 		}
 		List<Location> locationList = trackData.getLocations();
 		if(locationList == null) {
-			System.out.println("this is the 1st call for location tracking for the qr : " + location.getQrCode());
+			log.info("this is the 1st call for location tracking for the qr : " + location.getQrCode());
 			locationList = new ArrayList<>();
 		}
 		locationList.add(location.getLocation());
 		trackData = trackRepo.save(trackData);
-		System.out.println("tracking data is updated with location, updated record : " + trackData);
+		log.info("tracking data is updated with location, updated record : " + trackData);
 		return new Result();
 	}
 	

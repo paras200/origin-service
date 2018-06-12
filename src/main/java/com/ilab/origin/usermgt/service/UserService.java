@@ -2,6 +2,8 @@ package com.ilab.origin.usermgt.service;
 
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +22,8 @@ import com.ilab.origin.validator.model.Result;
 @CrossOrigin(origins = "*")
 public class UserService {
 
+	private static Log log = LogFactory.getLog(UserService.class.getName());
+	
 	@Autowired
     UserRepository repository;
 	
@@ -30,7 +34,7 @@ public class UserService {
 		
 	@PostMapping("/user/save")	
 	public User saveUser(@RequestBody User user){		
-		System.out.println(" saving user :" + user);
+		log.info(" saving user :" + user);
 		return repository.save(user);
 	}
 	
