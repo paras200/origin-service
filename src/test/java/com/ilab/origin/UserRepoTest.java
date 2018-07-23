@@ -10,6 +10,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.ilab.origin.usermgt.model.Field;
@@ -42,6 +45,9 @@ public class UserRepoTest {
 
     @Autowired
     private TemplateRepository templateRepo;
+    
+    @Autowired 
+	private MongoOperations operations;
     
     private User aks, nish;
     private Merchant maruti;
@@ -76,6 +82,7 @@ public class UserRepoTest {
         vData.setId("123");
         vData.setQrCode("code123");
         vData.setProductName("Swift");
+        vData.setMerchantId("mer123");
         
 		Map<String, String> dataMap = new HashMap<>(); 
 		dataMap.put("batchId", "b1");
@@ -110,6 +117,17 @@ public class UserRepoTest {
 		QRTemplates qrTemp = templateRepo.save(templates);
 		
 		templateRepo.findByMerchantId("mer-123");
+    }
+    
+    @Test
+    public void queryTest() {
+    	List<OriginData> result = vRepo.findAll();
+    	Query query2 = new Query();
+		Object qrcode ="code123";
+		Object merchantId = "mer123";
+		query2.addCriteria(Criteria.where("qrCode").is(qrcode).andOperator(Criteria.where("merchantId").is(merchantId)));
+		result = operations.find(query2, OriginData.class);
+		System.out.println(result.size());
     }
     
     @Test

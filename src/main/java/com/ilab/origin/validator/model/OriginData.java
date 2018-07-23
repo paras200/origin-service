@@ -1,5 +1,6 @@
 package com.ilab.origin.validator.model;
 
+import java.util.Calendar;
 import java.util.Map;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -32,6 +33,7 @@ public class OriginData {
 	private String message;
 	
 	private Location location;
+	private long timeinmilli = Calendar.getInstance().getTimeInMillis();
 	
 	
 	public String getQrCode() {
@@ -94,5 +96,11 @@ public class OriginData {
 	public void setMessage(String message) {
 		this.message = message;
 	}
+	public long getTimeinmilli() {
+		return timeinmilli;
+	}
+	public void setTimeinmilli(long timeinmilli) {
+		this.timeinmilli = timeinmilli;
+	}	
 	
 }

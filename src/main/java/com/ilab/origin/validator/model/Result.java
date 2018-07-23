@@ -14,6 +14,7 @@ public class Result {
 	private boolean isSuccess;
 	private int validTill = 60;
 	private long timestamp = Calendar.getInstance().getTimeInMillis();
+	private String message;
 
 	public String getStatus() {
 		return status;
@@ -54,5 +55,14 @@ public class Result {
 	public void setTimestamp(long timestamp) {
 		this.timestamp = timestamp;
 	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
 		
+	
 }
