@@ -9,12 +9,27 @@ import java.util.Calendar;
  */
 public class Result {
 
-	private String status = "SUCCESS";
+	public static final String STATUS_SUCCESS = "SUCCESS";
+	public static final String STATUS_FAILUER = "FAIL";
+	
 	private String token;
 	private boolean isSuccess;
 	private int validTill = 60;
 	private long timestamp = Calendar.getInstance().getTimeInMillis();
 	private String message;
+	private String status;
+	
+	public Result() {
+		
+	}
+	
+	public Result(String status) {
+		this.status = status;
+	}
+	public Result(String status , String message) {
+		this.message = message;
+		this.status = status;
+	}
 
 	public String getStatus() {
 		return status;

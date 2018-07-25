@@ -1,6 +1,7 @@
 package com.ilab.origin.usermgt.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +33,7 @@ public class MerchantService {
 	private TemplateRepository templateRepo;
 	
 	@PostMapping("/save")	
-	public Merchant saveUser(@RequestBody Merchant user){		
+	public Merchant saveMerchant(@RequestBody Merchant user){		
 		log.info(" saving user :" + user);
 		return repository.save(user);
 	}
@@ -47,6 +48,23 @@ public class MerchantService {
 	public Merchant findMerchantById(@RequestParam(value="merchantId") String merchantId){		
 		log.info(" retreive merchant detail for :" + merchantId);
 		return repository.findById(merchantId);
+	}
+	
+	@GetMapping("/get-all-merchant-keys")	
+	public List<String> findAllMerchantKeys(){		
+
+		List<Merchant> mrList = repository.findAll();  // TODO move the querey to selected fields
+		List<String> mkeyList = mrList.stream().map(Merchant::getMerchantKey).collect(Collectors.toList());
+
+		return mkeyList;
+	}
+	
+	@GetMapping("/is-merchant-key-availble")	
+	public boolean checkIfExist(@RequestParam(value="merchantKey") String merchantKey){		
+		log.info(" retreive merchant detail for :" + merchantKey);
+		Merchant mr = repository.findByMerchantKey(merchantKey);
+		if(mr == null) return true;
+		return false;
 	}
 	
 	@PostMapping("/save-templates")	

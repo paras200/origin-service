@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -143,5 +144,12 @@ public class UserRepoTest {
         List<UserAudit> auditLog = auditRepo.findByUserId(user.getUserId());*/
         System.out.println("************** AUDIT LOG***** ");
        // assertThat(user.extracting("userId").contains("aks");
+    }
+    
+    @Test
+    public void findMrKeys() {
+    	List<Merchant> mrList = mrRepo.findAll();
+    	List<String> mkeyList = mrList.stream().map(Merchant::getMerchantKey).collect(Collectors.toList());
+    	System.out.println(mkeyList);
     }
 }

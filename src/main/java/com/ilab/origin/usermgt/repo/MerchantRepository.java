@@ -9,4 +9,5 @@ public interface MerchantRepository extends MongoRepository<Merchant, String> {
 	public Merchant findByMerchantKey(String merchantKey);
 	
 	public Merchant findById(String id);
+	
 }
