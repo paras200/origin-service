@@ -53,11 +53,14 @@ public class UserRepoTest {
     private User aks, nish;
     private Merchant maruti;
     private OriginData vData;
+    
+    private static boolean init = true;
 
     @Before
     public void setUp() {
 
-       repository.deleteAll();
+    	if(init) {
+    		repository.deleteAll();
         aks = new User();
         aks.setLocation("India");
         aks.setUserId("ask");
@@ -72,6 +75,7 @@ public class UserRepoTest {
         nish = repository.save(nish);
         
         //mrRepo.deleteAll();
+        
         maruti = new Merchant();
         maruti.setMerchantKey("MRT");
         maruti.setCompanyRegNumber("Maruti-Reg");
@@ -118,6 +122,8 @@ public class UserRepoTest {
 		QRTemplates qrTemp = templateRepo.save(templates);
 		
 		templateRepo.findByMerchantId("mer-123");
+		init = false;
+    	}
     }
     
     @Test

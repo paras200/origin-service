@@ -1,15 +1,18 @@
 package com.ilab.origin.validator.model;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.ilab.origin.usermgt.model.Location;
 
 @EntityScan
+@Document
 public class OriginData {
 
 	public static boolean SOLD = true;
@@ -21,12 +24,17 @@ public class OriginData {
 	@Indexed(unique=true)
 	private String qrCode;
 	
-	private String qrKey;
-	
 	private String productName;
 	
 	@Indexed
 	private String merchantId;
+	
+	private String gstn;
+	private String expiryDate;
+	private String lotNumber;
+	private String serialNumber;
+	private String otherInfo;
+	
 	private Map<String, String> dataMap;
 	private boolean isSold = NOT_SOLD;
 	private int statusCode;
@@ -34,7 +42,10 @@ public class OriginData {
 	
 	private Location location;
 	private long timeinmilli = Calendar.getInstance().getTimeInMillis();
-	
+	private Date latestScanTime = new Date();
+	private int latestScanStatus;
+	private Date firstScanTime ;
+	private boolean includeOriginCheck = true;
 	
 	public String getQrCode() {
 		return qrCode;
@@ -71,11 +82,35 @@ public class OriginData {
 		this.isSold = isSold;
 	}
 	
-	public String getQrKey() {
-		return qrKey;
+	public String getGstn() {
+		return gstn;
 	}
-	public void setQrKey(String qrKey) {
-		this.qrKey = qrKey;
+	public void setGstn(String gstn) {
+		this.gstn = gstn;
+	}
+	public String getExpiryDate() {
+		return expiryDate;
+	}
+	public void setExpiryDate(String expiryDate) {
+		this.expiryDate = expiryDate;
+	}
+	public String getLotNumber() {
+		return lotNumber;
+	}
+	public void setLotNumber(String lotNumber) {
+		this.lotNumber = lotNumber;
+	}
+	public String getSerialNumber() {
+		return serialNumber;
+	}
+	public void setSerialNumber(String serialNumber) {
+		this.serialNumber = serialNumber;
+	}
+	public String getOtherInfo() {
+		return otherInfo;
+	}
+	public void setOtherInfo(String otherInfo) {
+		this.otherInfo = otherInfo;
 	}
 	public Location getLocation() {
 		return location;
@@ -101,6 +136,47 @@ public class OriginData {
 	}
 	public void setTimeinmilli(long timeinmilli) {
 		this.timeinmilli = timeinmilli;
+	}
+	public Date getLatestScanTime() {
+		return latestScanTime;
+	}
+	public void setLatestScanTime(Date latestScanTime) {
+		this.latestScanTime = latestScanTime;
+	}
+	public int getLatestScanStatus() {
+		return latestScanStatus;
+	}
+	public void setLatestScanStatus(int latestScanStatus) {
+		this.latestScanStatus = latestScanStatus;
+	}
+	public Date getFirstScanTime() {
+		return firstScanTime;
+	}
+	public void setFirstScanTime(Date firstScanTime) {
+		this.firstScanTime = firstScanTime;
+	}
+	
+	public boolean isIncludeOriginCheck() {
+		return includeOriginCheck;
+	}
+	public void setIncludeOriginCheck(boolean includeOriginCheck) {
+		this.includeOriginCheck = includeOriginCheck;
+	}
+	
+	@Override
+	public String toString() {
+		return "OriginData [id=" + id + ", qrCode=" + qrCode + ", productName=" + productName + ", merchantId="
+				+ merchantId + ", getQrCode()=" + getQrCode() + ", getDataMap()=" + getDataMap() + ", getProductName()="
+				+ getProductName() + ", getMerchantId()=" + getMerchantId() + ", isSold()=" + isSold() + ", getGstn()="
+				+ getGstn() + ", getExpiryDate()=" + getExpiryDate() + ", getLotNumber()=" + getLotNumber()
+				+ ", getSerialNumber()=" + getSerialNumber() + ", getOtherInfo()=" + getOtherInfo() + ", getLocation()="
+				+ getLocation() + ", getStatusCode()=" + getStatusCode() + ", getMessage()=" + getMessage()
+				+ ", getTimeinmilli()=" + getTimeinmilli() + ", getLatestScanTime()=" + getLatestScanTime()
+				+ ", getLatestScanStatus()=" + getLatestScanStatus() + ", getFirstScanTime()=" + getFirstScanTime()
+				+ ", getClass()=" + getClass() + ", hashCode()=" + hashCode() + ", toString()=" + super.toString()
+				+ "]";
 	}	
+	
+	
 	
 }

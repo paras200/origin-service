@@ -1,82 +1,134 @@
 package com.ilab.origin.tracker.model;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Date;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.ilab.origin.usermgt.model.Location;
 
 @EntityScan
-public class TrackingData {
+@Document
+public class TrackingData implements Comparable<TrackingData>{
 
 	@Id
     public String id;
-
-	@Indexed(unique=true)
-	private String qrCode;
 	
+	private String qrcode;
+	private String lotNumber;
 	private String productName;
-	private String trackingCode;
-	
-	@Indexed
+	private String manufacturerId;
+	private String manufacturerName;
 	private String merchantId;
-	private Map<String, String> dataMap;
+	private String merchantName;
 	
-	private List<Location> locations ;
-
-	public String getQrCode() {
-		return qrCode;
+	private String userId;
+	private ProductOwner previousOwner;
+	private ProductOwner owner;
+	private Date creationDate = new Date();
+	private String status;
+	private String comments;
+	private Location location;
+	
+	
+	public String getQrcode() {
+		return qrcode;
 	}
-
-	public void setQrCode(String qrCode) {
-		this.qrCode = qrCode;
+	public void setQrcode(String qrcode) {
+		this.qrcode = qrcode;
 	}
-
+	public String getLotNumber() {
+		return lotNumber;
+	}
+	public void setLotNumber(String lotNumber) {
+		this.lotNumber = lotNumber;
+	}
 	public String getProductName() {
 		return productName;
 	}
-
 	public void setProductName(String productName) {
 		this.productName = productName;
 	}
-
-	public String getTrackingCode() {
-		return trackingCode;
+	
+	public String getManufacturerId() {
+		return manufacturerId;
 	}
-
-	public void setTrackingCode(String trackingCode) {
-		this.trackingCode = trackingCode;
+	public void setManufacturerId(String manufacturerId) {
+		this.manufacturerId = manufacturerId;
 	}
-
+	public String getManufacturerName() {
+		return manufacturerName;
+	}
+	public void setManufacturerName(String manufacturerName) {
+		this.manufacturerName = manufacturerName;
+	}
 	public String getMerchantId() {
 		return merchantId;
 	}
-
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
 	}
-
-	public Map<String, String> getDataMap() {
-		return dataMap;
+	public String getMerchantName() {
+		return merchantName;
 	}
-
-	public void setDataMap(Map<String, String> dataMap) {
-		this.dataMap = dataMap;
+	public void setMerchantName(String merchantName) {
+		this.merchantName = merchantName;
 	}
-
-	public String getId() {
-		return id;
+	
+	public String getUserId() {
+		return userId;
 	}
-
-	public List<Location> getLocations() {
-		return locations;
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
-
-	public void setLocations(List<Location> locations) {
-		this.locations = locations;
-	}	
-
+	public ProductOwner getPreviousOwner() {
+		return previousOwner;
+	}
+	public void setPreviousOwner(ProductOwner previousOwner) {
+		this.previousOwner = previousOwner;
+	}
+	public ProductOwner getOwner() {
+		return owner;
+	}
+	public void setOwner(ProductOwner owner) {
+		this.owner = owner;
+	}
+	
+	public Date getCreationDate() {
+		return creationDate;
+	}
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public String getComments() {
+		return comments;
+	}
+	public void setComments(String comments) {
+		this.comments = comments;
+	}
+	public Location getLocation() {
+		return location;
+	}
+	public void setLocation(Location location) {
+		this.location = location;
+	}
+	@Override
+	public int compareTo(TrackingData o) {
+		if(this.getCreationDate() == o.getCreationDate()) return 0;
+		else if(this.getCreationDate() != null) {
+			return this.getCreationDate().compareTo(o.getCreationDate());
+		}else if(o.getCreationDate() != null) {
+			return o.getCreationDate().compareTo(this.getCreationDate());
+		}
+		return 0;
+	}
+	
+	
 }
