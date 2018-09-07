@@ -19,10 +19,15 @@ public class User {
 	private String userId; // email-id as user id
 	
 	private String password;
+	
+	@Indexed
 	private String merchantId; // for users belonging to Merchant
 	private String email;
 	private String firstName;
 	private String lastName;
+	
+	private String userCode;
+	private Boolean isActive = true;
 	
 	@Indexed
 	private String userType; 
@@ -107,6 +112,29 @@ public class User {
 
 	public void setUserType(String userType) {
 		this.userType = userType;
+	}
+	
+	public String getUserName() {
+		if(firstName == null && lastName == null) {
+			return userId;
+		}
+		return firstName + " " + lastName;
+	}
+
+	public String getUserCode() {
+		return userCode;
+	}
+
+	public void setUserCode(String userCode) {
+		this.userCode = userCode;
+	}
+
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
 	}
 
 	@Override

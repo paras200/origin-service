@@ -13,7 +13,7 @@ import com.ilab.origin.usermgt.model.Location;
 
 @EntityScan
 @Document
-public class OriginData {
+public class OriginData implements Cloneable{
 
 	public static boolean SOLD = true;
 	public static boolean NOT_SOLD = false;
@@ -24,28 +24,43 @@ public class OriginData {
 	@Indexed(unique=true)
 	private String qrCode;
 	
+	@Indexed
 	private String productName;
+	private String productCode;
 	
 	@Indexed
 	private String merchantId;
 	
 	private String gstn;
 	private String expiryDate;
+	
+	@Indexed
 	private String lotNumber;
 	private String serialNumber;
 	private String otherInfo;
 	
 	private Map<String, String> dataMap;
 	private boolean isSold = NOT_SOLD;
+	
 	private int statusCode;
 	private String message;
 	
 	private Location location;
 	private long timeinmilli = Calendar.getInstance().getTimeInMillis();
 	private Date latestScanTime = new Date();
+	
+	@Indexed
 	private int latestScanStatus;
 	private Date firstScanTime ;
 	private boolean includeOriginCheck = true;
+	private boolean userFeeback = false;
+	
+	
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
+	}
 	
 	public String getQrCode() {
 		return qrCode;
@@ -161,6 +176,31 @@ public class OriginData {
 	}
 	public void setIncludeOriginCheck(boolean includeOriginCheck) {
 		this.includeOriginCheck = includeOriginCheck;
+	}
+	
+	public String getProductCode() {
+		return productCode;
+	}
+	public void setProductCode(String productCode) {
+		this.productCode = productCode;
+	}
+	
+	
+	public boolean isUserFeeback() {
+		return userFeeback;
+	}
+
+	public void setUserFeeback(boolean userFeeback) {
+		this.userFeeback = userFeeback;
+	}
+
+	public String getDisplayText() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Product Name : " + productName).append("\n");
+		sb.append("Expiry Date :" + expiryDate).append("\n");
+		sb.append("GSTN : " + gstn ).append("\n");
+		sb.append("Serial Num : " + serialNumber);
+		return sb.toString();
 	}
 	
 	@Override

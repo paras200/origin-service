@@ -10,6 +10,7 @@ public class OriginStatus {
 	public static int RED = 2;
 	public static int AMBER =  1;
 	public static int GREEN = 0;
+	public static int NO_SCAN =-1;
 
 	private static String GREEN_MSG ="Genuine Product !!!";
 	private static String AMBER_MSG ="Already SOLD - if you are scanning this for the 1st time, please get back to us.";

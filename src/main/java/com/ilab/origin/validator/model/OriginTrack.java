@@ -22,6 +22,7 @@ public class OriginTrack {
 	private Location location;
 	private Date scanTime;
 	
+	
 	public String getQrcode() {
 		return qrcode;
 	}

@@ -24,6 +24,7 @@ import com.ilab.origin.usermgt.repo.AuditRepository;
 import com.ilab.origin.usermgt.repo.MerchantRepository;
 import com.ilab.origin.usermgt.repo.TemplateRepository;
 import com.ilab.origin.usermgt.repo.UserRepository;
+import com.ilab.origin.usermgt.service.UserService;
 import com.ilab.origin.validator.model.OriginData;
 import com.ilab.origin.validator.repo.ValidatorRepo;
 
@@ -50,6 +51,9 @@ public class UserRepoTest {
     @Autowired 
 	private MongoOperations operations;
     
+    @Autowired
+    private UserService userService;
+    
     private User aks, nish;
     private Merchant maruti;
     private OriginData vData;
@@ -62,14 +66,16 @@ public class UserRepoTest {
     	if(init) {
     		repository.deleteAll();
         aks = new User();
+        aks.id="101";
         aks.setLocation("India");
-        aks.setUserId("ask");
+        aks.setUserId("aks_test");
         aks.setMobileNumber("999999999");
         aks = repository.save(aks);
         
         nish = new User();
+        nish.id="102";
         nish.setLocation("India");
-        nish.setUserId("nisk");
+        nish.setUserId("nish");
         nish.setMobileNumber("777777777");
         
         nish = repository.save(nish);
@@ -77,17 +83,19 @@ public class UserRepoTest {
         //mrRepo.deleteAll();
         
         maruti = new Merchant();
-        maruti.setMerchantKey("MRT");
+        maruti.id="101";
+        maruti.setMerchantKey("MRKey");
         maruti.setCompanyRegNumber("Maruti-Reg");
-        maruti.setName("Maruti India Pvt Ltd");
+        maruti.setName("Ranbaxy");
         maruti.setMobileNumber("10101010110");
         maruti = mrRepo.save(maruti);
         
         vData = new OriginData();
+       // vData.id="101";
         vData.setId("123");
         vData.setQrCode("code123");
-        vData.setProductName("Swift");
-        vData.setMerchantId("mer123");
+        vData.setProductName("syrup");
+        vData.setMerchantId("101");
         
 		Map<String, String> dataMap = new HashMap<>(); 
 		dataMap.put("batchId", "b1");
@@ -121,7 +129,7 @@ public class UserRepoTest {
 		
 		QRTemplates qrTemp = templateRepo.save(templates);
 		
-		templateRepo.findByMerchantId("mer-123");
+		templateRepo.findByMerchantId("101");
 		init = false;
     	}
     }
@@ -135,6 +143,18 @@ public class UserRepoTest {
 		query2.addCriteria(Criteria.where("qrCode").is(qrcode).andOperator(Criteria.where("merchantId").is(merchantId)));
 		result = operations.find(query2, OriginData.class);
 		System.out.println(result.size());
+    }
+    
+    @Test
+    public void genericQueryTest() {
+    	Map<String, String> queryMap = new HashMap<>();
+    	queryMap.put("userId", "aks_test");
+    	queryMap.put("id", "101");
+		List<?> userList = userService.getUsers(queryMap);
+		for (Object obj : userList) {
+			User u = (User) obj;
+			System.out.println(u.getId());
+		}
     }
     
     @Test

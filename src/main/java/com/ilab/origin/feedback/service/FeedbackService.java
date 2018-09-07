@@ -1,8 +1,13 @@
 package com.ilab.origin.feedback.service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,6 +27,9 @@ public class FeedbackService {
 
 	@Autowired
 	private FeedbackRepo fdRepo;
+	
+	@Autowired 
+	private MongoOperations operations;
 	
 	@PostMapping("/save")	
 	public Result saveUserFeedback(@RequestBody FeedBackData fData){		
@@ -45,5 +53,20 @@ public class FeedbackService {
 	@RequestMapping(value="/get-by-user" , method = { RequestMethod.GET, RequestMethod.POST })
 	public List<FeedBackData> getFeedbackByUserId(@RequestParam(value="userId") String userId){
 		return fdRepo.findByUserId(userId);
+	}
+	
+	public Map<String, FeedBackData> getFeedbackDataByQrcodes(List<String> qrCodes){
+		Map<String, FeedBackData> resultMap = new HashMap<>();
+		if(qrCodes == null || qrCodes.size() == 0) return resultMap;
+		
+		Criteria cr = Criteria.where("qrCode").in(qrCodes);
+
+		Query query = new Query();
+		query.addCriteria(cr);
+		List<FeedBackData>  result = operations.find(query, FeedBackData.class);
+		for (FeedBackData feedBackData : result) {
+			resultMap.put(feedBackData.getQrCode(), feedBackData);
+		}
+		return resultMap;
 	}
 }

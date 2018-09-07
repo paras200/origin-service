@@ -22,7 +22,6 @@ import com.ilab.origin.tracker.model.TrackingData;
 import com.ilab.origin.tracker.model.TransactionInfo;
 import com.ilab.origin.tracker.repo.TrackingDataRepository;
 import com.ilab.origin.tracker.repo.TxInfoRepository;
-import com.ilab.origin.validator.model.Result;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -37,6 +36,9 @@ public class TrackingService {
 	@Autowired
 	private TrackingDataRepository trackingDataRepo;
 	
+	@Autowired
+	private ShipmentTrackRecorder shipmentTrackRecorder; 
+	
 	private SerialNumberGenerator generator = TimestampSerialization.getInstance();
 
 	@PostMapping("/save-txdata")	
@@ -48,7 +50,8 @@ public class TrackingService {
 	}
 	
 	private void addQRCode(TransactionInfo ti) {
-		ti.setQrcode(ti.getNationalDrugCode() + "-"  +ti.getLotNumber() );
+		// ti.setQrcode(ti.getNationalDrugCode() + "-"  +ti.getLotNumber() );
+		ti.setQrcode(ti.getLotNumber());
 	}
 
 	@PostMapping("/save-all-txdata")	
@@ -64,7 +67,7 @@ public class TrackingService {
 
 	private void setLotNumberIfNull(TransactionInfo txInfo) {
 		if(txInfo.getLotNumber() == null) {
-			txInfo.setLotNumber("L"+generator.getSequenceNumber());
+			txInfo.setLotNumber("LOT"+generator.getSequenceNumber());
 		}
 	}
 	
@@ -82,11 +85,11 @@ public class TrackingService {
 	}
 	
 	@PostMapping("/save-tracing-data")	
-	public Result saveTrackingData(@RequestBody TrackingData td) throws OriginException{		
+	public TransactionInfo saveTrackingData(@RequestBody TrackingData td) throws OriginException{		
 		log.info(" saving tracking location for qrcode: " + td.getQrcode());
 		if(StringUtils.isEmpty(td.getQrcode()) || td.getLocation() == null)
 		{
-			throw new OriginException("qrcode or location is null");
+			throw new OriginException("qrcode and location must be provided");
 		}
 		
 //		TransactionInfo trackData = tiRepo.findByQrCode(td.getQrCode());
@@ -96,8 +99,11 @@ public class TrackingService {
 		
 		td = trackingDataRepo.save(td);
 		
+		shipmentTrackRecorder.asyncUpdate(td);
+		
 		log.info("tracking data is updated with location, updated record : " + td);
-		return new Result();
+		TransactionInfo ti = tiRepo.findByQrcode(td.getQrcode());
+		return ti;
 	}
 	
 	@GetMapping("/get-by-qrcode")

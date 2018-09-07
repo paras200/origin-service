@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -14,8 +13,8 @@ import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
+import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.tracker.model.TrackingData;
 import com.ilab.origin.tracker.model.TransactionInfo;
@@ -32,10 +31,13 @@ public class ReportingRepo {
 	@Autowired
 	private TrackingDataRepository trackingDataRepo;
 	
+	@Autowired
+	private MongoQueryManager mongoQueryMgr;
+	
 	public TraceReportTo detailedReport(String qrcode, String lotNumber) throws OriginException {
 		Criteria criteria = null;
-		criteria = addToQuery("qrcode",qrcode, criteria);
-		criteria = addToQuery("lotNumber",lotNumber, criteria);
+		criteria = mongoQueryMgr.addToQuery("qrcode",qrcode, criteria);
+		criteria = mongoQueryMgr.addToQuery("lotNumber",lotNumber, criteria);
 		
 		Query query = new Query();
 		query.addCriteria(criteria);
@@ -59,8 +61,8 @@ public class ReportingRepo {
 	
 	public List<TraceReportTo> detailedReport(List<String> qrcode, List<String> lotNumber) throws OriginException {
 		Criteria criteria = null;
-		criteria = addToInQuery("qrcode",qrcode, criteria);
-		criteria = addToInQuery("lotNumber",lotNumber, criteria);
+		criteria = mongoQueryMgr.addToInQuery("qrcode",qrcode, criteria);
+		criteria = mongoQueryMgr.addToInQuery("lotNumber",lotNumber, criteria);
 		
 		List<TraceReportTo> reportTo = getDataByCriteria(criteria);
 		return reportTo;
@@ -68,10 +70,10 @@ public class ReportingRepo {
 
 	public List<TraceReportTo> detailedReport(String qrcode, String merchantId, String productName, String lotNumber) {
 		Criteria criteria = null;
-		criteria = addToQuery("qrcode",qrcode, criteria);
-		criteria = addToQuery("merchantId",merchantId, criteria);
-		criteria = addToQuery("productName",productName, criteria);
-		criteria = addToQuery("lotNumber",lotNumber, criteria);
+		criteria = mongoQueryMgr.addToQuery("qrcode",qrcode, criteria);
+		criteria = mongoQueryMgr.addToQuery("merchantId",merchantId, criteria);
+		criteria = mongoQueryMgr.addToQuery("productName",productName, criteria);
+		criteria = mongoQueryMgr.addToQuery("lotNumber",lotNumber, criteria);
 	
 		List<TraceReportTo> result = getDataByCriteria(criteria);
 		log.info("result size retruned : " + result.size());
@@ -91,7 +93,7 @@ public class ReportingRepo {
 		}
 		
 		Criteria criteria2 = null;
-		criteria2 = addToInQuery("qrcode",qrcodes, criteria2);
+		criteria2 = mongoQueryMgr.addToInQuery("qrcode",qrcodes, criteria2);
 		Query query2 = new Query();
 		query2.addCriteria(criteria2);
 		List<TrackingData>  traceList = operations.find(query2, TrackingData.class);
@@ -127,10 +129,10 @@ public class ReportingRepo {
 
 	public List<TransactionInfo> summaryView(String qrcode, String merchantId, String productName, String lotNumber) {
 		Criteria criteria = null;
-		criteria = addToQuery("qrcode",qrcode, criteria);
-		criteria = addToQuery("merchantId",merchantId, criteria);
-		criteria = addToQuery("productName",productName, criteria);
-		criteria = addToQuery("lotNumber",lotNumber, criteria);
+		criteria = mongoQueryMgr.addToQuery("qrcode",qrcode, criteria);
+		criteria = mongoQueryMgr.addToQuery("merchantId",merchantId, criteria);
+		criteria = mongoQueryMgr.addToQuery("productName",productName, criteria);
+		criteria = mongoQueryMgr.addToQuery("lotNumber",lotNumber, criteria);
 		
 		
 		Query query = new Query();
@@ -140,6 +142,7 @@ public class ReportingRepo {
 		return result;
 	}
 
+	/**
 	private Criteria addToQuery(String fieldName, String value, Criteria criteria) {
 		if(StringUtils.isEmpty(value)) return criteria;
 		
@@ -161,4 +164,5 @@ public class ReportingRepo {
 		}
 		return criteria;
 	}
+	**/
 }

@@ -34,7 +34,7 @@ public class MerchantService {
 	
 	@PostMapping("/save")	
 	public Merchant saveMerchant(@RequestBody Merchant user){		
-		log.info(" saving user :" + user);
+		log.info(" saving merchant :" + user);
 		return repository.save(user);
 	}
 	
@@ -78,4 +78,5 @@ public class MerchantService {
 		log.info(" retreive template detail for :" + merchantId);
 		return templateRepo.findByMerchantId(merchantId);
 	}
+
 }

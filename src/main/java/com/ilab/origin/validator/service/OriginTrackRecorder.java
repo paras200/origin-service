@@ -27,7 +27,7 @@ public class OriginTrackRecorder {
 	
 	@PostConstruct
 	public void init(){
-		for(int i=1 ; i<=10 ; i++){
+		for(int i=1 ; i<=5 ; i++){
 			OriginScanRecorderThread oTrackThread = new OriginScanRecorderThread(queue,originTrackRepo);
 			oTrackThread.start();
 		}			

@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -21,7 +24,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.common.utils.DateUtils;
+import com.ilab.origin.feedback.mode.FeedBackData;
+import com.ilab.origin.feedback.service.FeedbackService;
 import com.ilab.origin.serial.SerialNumberGenerator;
 import com.ilab.origin.serial.TimestampSerialization;
 import com.ilab.origin.tracker.error.OriginException;
@@ -31,6 +37,7 @@ import com.ilab.origin.validator.model.OriginTrack;
 import com.ilab.origin.validator.model.QRGenInputData;
 import com.ilab.origin.validator.model.Result;
 import com.ilab.origin.validator.repo.ValidatorRepo;
+import com.ilab.origin.validator.to.OriginDataTO;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -48,6 +55,12 @@ public class ValidationService {
 	@Autowired 
 	private MongoOperations operations;
 	
+	@Autowired
+	private FeedbackService feedbackService;
+	
+	@Autowired
+	private MongoQueryManager mongoQueryMgr;
+	
 	private static Log log = LogFactory.getLog(ValidationService.class.getName());
 	
 	@PostMapping("/save-qrcode")	
@@ -62,6 +75,7 @@ public class ValidationService {
 		log.info(" saving QR code :" + vDataList);
 		long timeinmilli = Calendar.getInstance().getTimeInMillis();
 		for (OriginData originData : vDataList) {
+			originData.setLatestScanStatus(-1);
 			originData.setSold(false);
 			originData.setTimeinmilli(timeinmilli);
 		}
@@ -70,29 +84,52 @@ public class ValidationService {
 	}
 	
 	@PostMapping("/generate-qrcode")	
-	public List<OriginData> saveAllQRCode(@RequestBody QRGenInputData inputData) throws OriginException{		
+	public List<OriginDataTO> saveAllQRCode(@RequestBody QRGenInputData inputData) throws OriginException{		
 		if(inputData.getOriginData()== null || inputData.getOriginData().getMerchantId() == null){
-			throw new OriginException("Merchant Id can't bull");
+			throw new OriginException("Merchant Id can't null");
 		}
 		
 		List<OriginData> vDataList = new ArrayList<>();
 		int count = inputData.getCount();
 		List<String> serialNumberList = slgenerator.getSequenceNumber(count);
+		long timeinmilli = Calendar.getInstance().getTimeInMillis();
 		for (int i =0 ; i < count; i++) {
-			OriginData vd = new OriginData();
-			
-			String qrcode = generateQrcode(vd, serialNumberList.get(i));
-			vd.setQrCode(qrcode);
-			vDataList.add(vd);
+			OriginData vd;
+			try {
+				vd = (OriginData) inputData.getOriginData().clone();
+				String qrcode = generateQrcode(vd, serialNumberList.get(i));
+				vd.setQrCode(qrcode);
+				vd.setLatestScanStatus(-1);
+				vd.setSold(false);
+				vd.setTimeinmilli(timeinmilli);
+				vDataList.add(vd);
+			} catch (CloneNotSupportedException e) {
+				throw new OriginException("object clone failed for OriginData " + inputData.getOriginData() , e);
+			}
 		}
 		log.info(" saving QR code :" + vDataList);
 		vDataList = repository.save(vDataList);
 		log.info("QR codes saved for : " + vDataList);
-		return vDataList;
+		List<OriginDataTO> oList = getOriginDataTo(vDataList);
+		return oList;
 	}
 	  
+	private List<OriginDataTO> getOriginDataTo(List<OriginData> vDataList) {
+		List<OriginDataTO> origList = new ArrayList<>();
+		for (OriginData originData : vDataList) {
+			OriginDataTO dataTO = new OriginDataTO();
+			dataTO.setQrCode(originData.getQrCode());
+			String displayText = originData.getQrCode() + " \n " + originData.getProductName() ;
+			dataTO.setDisplayText(displayText);
+			origList.add(dataTO);
+		}
+		return origList;
+	}
+
 	private String generateQrcode(OriginData vd, String serialNum) {
-		return vd.getGstn() +"-" + serialNum + "-" + vd.getLotNumber()+"-"+vd.getExpiryDate();
+		//return vd.getGstn() +"-" + serialNum + "-" + vd.getLotNumber();//+"-"+vd.getExpiryDate();
+		if(vd.getLotNumber() == null) return serialNum;
+		return serialNum + "-" + vd.getLotNumber(); 
 	}
 
 	@RequestMapping(value="/get-by-qrcode" , method = { RequestMethod.GET, RequestMethod.POST })
@@ -132,11 +169,41 @@ public class ValidationService {
 		
 		Query query = new Query();
 		query.addCriteria(criteria);
+		query.with(new Sort(Sort.Direction.DESC, "timeinmilli"));
 		List<OriginData>  result = operations.find(query, OriginData.class);
 		log.info("result size retruned : " + result.size());
+
+		updateUserFeedbackInfo(result);
 		return result;
 	}
 	
+	@RequestMapping(value="/generic-query" , method = { RequestMethod.POST ,RequestMethod.GET })
+	public List<OriginData>  getValidationData(@RequestParam Map<String, String> queryMap ,@RequestParam(value="pageNum", required=false) Integer pageNum , @RequestParam(value="pageSize", required=false) Integer pageSize  ) throws OriginException{
+		
+		List<?> results =  mongoQueryMgr.executeQuery(queryMap, OriginData.class,"timeinmilli", pageNum, pageSize);	
+		log.info("result size retruned : " + results.size());
+		
+		List<OriginData> updatedResult = new ArrayList<>();
+		for (Object resObj : results) {
+			OriginData od = (OriginData) resObj;
+			updatedResult.add(od);
+		}
+		updateUserFeedbackInfo(updatedResult);
+		return updatedResult;
+	}
+	
+	private void updateUserFeedbackInfo(List<OriginData> result) {
+		List<String> qrList = result.stream().map(OriginData::getQrCode).collect(Collectors.toList());
+		Map<String, FeedBackData> datamap = feedbackService.getFeedbackDataByQrcodes(qrList);
+		for (OriginData od : result) {
+			if(datamap.get(od.getQrCode()) != null){
+				od.setUserFeeback(true);
+			}
+		}
+	}
+	
+	
+
 	@RequestMapping(value="/get-by-merchant" , method = { RequestMethod.GET, RequestMethod.POST })
 	public List<OriginData> getByMerchant(@RequestParam(value="merchantId") String merchantId){
 		return repository.findByMerchantId(merchantId);
@@ -176,7 +243,7 @@ public class ValidationService {
 			updateOrginTrack(oTrack , vd);
 			originTrackRecorder.asyncSave(oTrack);
 		}
-		return vd;
+		return vd ;
 	}
 
 	@RequestMapping(value="/get-scan-hist" , method = { RequestMethod.GET, RequestMethod.POST })
