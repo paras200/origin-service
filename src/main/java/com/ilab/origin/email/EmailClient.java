@@ -18,6 +18,10 @@ public class EmailClient {
 	@Value("${email.server.url}")
 	private String emailServerUrl;
 	
+	@Value("${origin.base.server.url}")
+	private String originBaseServerUrl;
+	
+	
 	private String templateBasedUrl;
 	private String customEmailUrl;
 	
@@ -34,7 +38,7 @@ public class EmailClient {
 	}
 
 	public void sendUserRegistrationLink(String emailId, String userCode) {
-		String uri = "http://originscan.com/2.0/#/auth/user-register?userCode=" + userCode;
+		String uri = originBaseServerUrl+"/#/auth/user-register?userCode=" + userCode;
 		String body =" Hi \n   You have been invited to join Origin Scan, please use the link below to Register \n";
 		body += uri;
 		String subject = "Invitation To Join Origin Scan";

@@ -7,4 +7,6 @@ public interface SerialNumberGenerator {
 	public String getSequenceNumber() ;
 	
 	public List<String> getSequenceNumber(int count) ;
+	
+	public  List<String> getSequenceNumber(int count, String prefix);
 }

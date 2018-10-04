@@ -178,4 +178,11 @@ public class UserRepoTest {
     	List<String> mkeyList = mrList.stream().map(Merchant::getMerchantKey).collect(Collectors.toList());
     	System.out.println(mkeyList);
     }
+    
+    @Test
+    public void linkUser() {
+    	List<String> userIdList = new ArrayList<>();
+    	userIdList.add("sinhanil19@gmail.com");
+		//userService.adduser(userIdList, "1000");
+    }
 }

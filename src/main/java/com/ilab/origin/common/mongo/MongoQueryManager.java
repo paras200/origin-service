@@ -54,8 +54,12 @@ private static Log log = LogFactory.getLog(MongoQueryManager.class.getName());
 	public List<?> executeQuery(Class<?> className, Query query) {
 		return operations.find(query, className);
 	}
+	
+	public long getCount(Query query, Class<?> className){
+		return operations.count(query, className);
+	}
 
-	private void addSorting(String sortField, Query query) {
+	public void addSorting(String sortField, Query query) {
 		query.with(new Sort(Sort.Direction.DESC, sortField));
 	}
 

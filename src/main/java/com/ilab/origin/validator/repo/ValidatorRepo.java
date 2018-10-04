@@ -11,5 +11,6 @@ public interface ValidatorRepo extends MongoRepository<OriginData, String> {
 	public OriginData findByQrCode(String qrcode);
 	
 	public List<OriginData> findByMerchantId(String merchantId);
-		
+	
+	public OriginData findByReadQrcode(String qrcode);	
 }

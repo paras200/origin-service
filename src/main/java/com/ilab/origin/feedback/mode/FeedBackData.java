@@ -4,22 +4,31 @@ import java.util.Calendar;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import com.ilab.origin.usermgt.model.Location;
 
 @EntityScan
+@Document
 public class FeedBackData {
 
 	@Id
     public String id;
 	
+	@Indexed
 	private String userId;
 	private String userName;
 	private String mobileNum;
+	
+	@Indexed
 	private String qrCode;
 	private String qrKey;
 	private String merchantId;
 	private String message;
 	private String productName;
 	private long timeinmilli = Calendar.getInstance().getTimeInMillis();
+	private Location location;
 	
 	public String getUserId() {
 		return userId;
@@ -78,7 +87,11 @@ public class FeedBackData {
 	public String getId() {
 		return id;
 	}
-	
-	
+	public Location getLocation() {
+		return location;
+	}
+	public void setLocation(Location location) {
+		this.location = location;
+	}
 
 }

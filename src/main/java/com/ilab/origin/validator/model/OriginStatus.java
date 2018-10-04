@@ -12,9 +12,9 @@ public class OriginStatus {
 	public static int GREEN = 0;
 	public static int NO_SCAN =-1;
 
-	private static String GREEN_MSG ="Genuine Product !!!";
+	private static String GREEN_MSG ="AUTHENTIC Product !!!";
 	private static String AMBER_MSG ="Already SOLD - if you are scanning this for the 1st time, please get back to us.";
-	private static String RED_MSG ="This is not a valid product, please contact us";
+	private static String RED_MSG ="INVALID- Product is not listed with us";
 	
 	public static String getStatusMessage(int status) {
 		if(statusMap == null) {

@@ -50,4 +50,8 @@ public class OriginTrackRecorder {
 	public List<OriginTrack> getTrackHistory(String qrcode){
 		return originTrackRepo.findByQrcode(qrcode);
 	}
+	
+	public List<OriginTrack> getTrackHistoryByUserId(String userId){
+		return originTrackRepo.findByUserIdOrderByScanTimeDesc(userId);
+	}
 }

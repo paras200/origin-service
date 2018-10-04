@@ -3,6 +3,7 @@ package com.ilab.origin.validator.to;
 public class OriginDataTO {
 
 	private String qrCode;
+	private String readQrcode;
 	private String displayText;
 	
 	public String getQrCode() {
@@ -10,6 +11,14 @@ public class OriginDataTO {
 	}
 	public void setQrCode(String qrCode) {
 		this.qrCode = qrCode;
+	}
+	
+	
+	public String getReadQrcode() {
+		return readQrcode;
+	}
+	public void setReadQrcode(String readQrcode) {
+		this.readQrcode = readQrcode;
 	}
 	public String getDisplayText() {
 		return displayText;

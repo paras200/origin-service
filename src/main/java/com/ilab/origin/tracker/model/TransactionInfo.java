@@ -1,5 +1,6 @@
 package com.ilab.origin.tracker.model;
 
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -39,6 +40,10 @@ public class TransactionInfo {
 	private Map<String, String> dataMap;
 	
 	private List<Location> locations ;
+	private long timeinmilli = Calendar.getInstance().getTimeInMillis();
+	
+	// transient info
+	int statusCode = 0;   /// -1 for invaid
 
 	public String getQrcode() {
 		return qrcode;
@@ -154,5 +159,23 @@ public class TransactionInfo {
 
 	public void setLocations(List<Location> locations) {
 		this.locations = locations;
+	}
+
+	public int getStatusCode() {
+		return statusCode;
+	}
+
+	public void setStatusCode(int statusCode) {
+		this.statusCode = statusCode;
+	}
+
+	public long getTimeinmilli() {
+		return timeinmilli;
+	}
+
+	public void setTimeinmilli(long timeinmilli) {
+		this.timeinmilli = timeinmilli;
 	}	
+	
+	
 }

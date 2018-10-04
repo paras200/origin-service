@@ -22,6 +22,7 @@ import com.ilab.origin.tracker.model.TrackingData;
 import com.ilab.origin.tracker.model.TransactionInfo;
 import com.ilab.origin.tracker.repo.TrackingDataRepository;
 import com.ilab.origin.tracker.repo.TxInfoRepository;
+import com.ilab.origin.validator.model.OriginStatus;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -87,9 +88,17 @@ public class TrackingService {
 	@PostMapping("/save-tracing-data")	
 	public TransactionInfo saveTrackingData(@RequestBody TrackingData td) throws OriginException{		
 		log.info(" saving tracking location for qrcode: " + td.getQrcode());
-		if(StringUtils.isEmpty(td.getQrcode()) || td.getLocation() == null)
+		if(StringUtils.isEmpty(td.getQrcode()))
 		{
-			throw new OriginException("qrcode and location must be provided");
+			//throw new OriginException("qrcode and location must be provided");
+			TransactionInfo ti = new TransactionInfo();
+			ti.setQrcode(td.getQrcode());
+			ti.setStatusCode(OriginStatus.NO_SCAN);
+			return ti;
+		}
+		
+		if(td.getLocation() == null) {
+			log.error("Location is null for tracking :" +td);
 		}
 		
 //		TransactionInfo trackData = tiRepo.findByQrCode(td.getQrCode());
@@ -103,6 +112,11 @@ public class TrackingService {
 		
 		log.info("tracking data is updated with location, updated record : " + td);
 		TransactionInfo ti = tiRepo.findByQrcode(td.getQrcode());
+		if(ti == null) {
+			ti = new TransactionInfo();
+			ti.setQrcode(td.getQrcode());
+			ti.setStatusCode(-1);
+		}
 		return ti;
 	}
 	

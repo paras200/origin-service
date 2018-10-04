@@ -26,6 +26,7 @@ public class User {
 	private String firstName;
 	private String lastName;
 	
+	@Indexed
 	private String userCode;
 	private Boolean isActive = true;
 	

@@ -54,7 +54,7 @@ public class TraceReportingService {
 		if(StringUtils.isEmpty(queryMap.get("merchantId"))) {
 			throw new OriginException("merchantId is mandatory, please provide the same");
 		}
-		List<?> result = mongoQueryMgr.executeQuery(queryMap, TransactionInfo.class);
+		List<?> result = mongoQueryMgr.executeQuery(queryMap, TransactionInfo.class,"timeinmilli");
 		return result;
 	}
 	
@@ -71,8 +71,6 @@ public class TraceReportingService {
 	public List<TraceReportTo>  getDetailedTxReport(@RequestParam(value="qrcode", required=false) String qrcode , @RequestParam(value="merchantId") String merchantId,
 				@RequestParam(value="productName" , required=false) String productName , @RequestParam(value="lotNumber" , required=false) String lotNumber) throws OriginException{
 		
-		//BasicQuery query = new BasicQuery("{ qrCode :\""+ qrcode +"\" , merchantId : \" "+ qrcode +"\" }");// merchantId : { $gt : 1000.00 }
-		//List<OriginData> result = operations.find(query, OriginData.class);
 		if(StringUtils.isEmpty(merchantId)) {
 			throw new OriginException("merchantId is mandatory, please provide the same");
 		}

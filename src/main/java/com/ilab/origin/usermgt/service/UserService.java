@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.email.EmailClient;
+import com.ilab.origin.mobileapp.model.AppUser;
+import com.ilab.origin.mobileapp.repo.AppUserRepository;
 import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.usermgt.model.Merchant;
 import com.ilab.origin.usermgt.model.User;
@@ -46,12 +48,16 @@ public class UserService {
 	@Autowired
 	private EmailClient emailClient;
 	
-		
+	@Autowired
+	private AppUserRepository appUserRepo;
+	
+	//TODO - remove this API
 	@PostMapping("/user/save")	
 	public User saveUser(@RequestBody User user){		
 		log.info(" saving user :" + user);
 		return userRepo.save(user);
 	}
+	
 	
 	@PostMapping("/user/register-newuser")	
 	public User registerNewUser(@RequestBody User user) throws OriginException{		
@@ -65,7 +71,20 @@ public class UserService {
 	
 	@RequestMapping(value = "/user/findby-userId" , method = { RequestMethod.GET, RequestMethod.POST })
 	public User getUserByUserId(@RequestParam(value="userId") String userId){
-		return userRepo.findByUserId(userId);
+		User merchantUser = userRepo.findByUserId(userId);
+		if(merchantUser == null) {
+			AppUser appU = appUserRepo.findByUserId(userId);
+			if(appU != null) {
+				merchantUser = new User();
+				merchantUser.setEmail(appU.getUserId());
+				merchantUser.setFirstName(appU.getFirstName());
+				merchantUser.setLastName(appU.getLastName());
+				merchantUser.setLocation(appU.getLocation());
+				merchantUser.setMobileNumber(appU.getMobileNumber());
+				//merchantUser.set
+			}
+		}
+		return merchantUser;
 	}
 	
 	@RequestMapping(value = "/all-users" , method = { RequestMethod.GET, RequestMethod.POST })
@@ -115,7 +134,7 @@ public class UserService {
 		}
 		List<User> savedUserList = userRepo.save(uList);
 		for (User user : savedUserList) {
-			emailClient.sendUserRegistrationLink(user.getId(), user.getUserCode());
+			emailClient.sendUserRegistrationLink(user.getUserId(), user.getUserCode());
 		}
 		return new Result(Result.STATUS_SUCCESS);
 	}

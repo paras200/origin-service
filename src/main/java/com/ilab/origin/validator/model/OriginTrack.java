@@ -21,6 +21,9 @@ public class OriginTrack {
 	private String comment;
 	private Location location;
 	private Date scanTime;
+	private String productName;
+	private String manufacturerName;
+	private String merchantKey;
 	
 	
 	public String getQrcode() {
@@ -61,6 +64,26 @@ public class OriginTrack {
 	}
 	public void setScanTime(Date scanTime) {
 		this.scanTime = scanTime;
+	}
+	
+	public String getProductName() {
+		return productName;
+	}
+	public void setProductName(String productName) {
+		this.productName = productName;
+	}
+	public String getManufacturerName() {
+		return manufacturerName;
+	}
+	public void setManufacturerName(String manufacturerName) {
+		this.manufacturerName = manufacturerName;
+	}
+	
+	public String getMerchantKey() {
+		return merchantKey;
+	}
+	public void setMerchantKey(String merchantKey) {
+		this.merchantKey = merchantKey;
 	}
 	@Override
 	public String toString() {

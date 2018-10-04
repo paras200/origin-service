@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.ilab.origin.usermgt.model.Location;
@@ -15,7 +16,10 @@ public class TrackingData implements Comparable<TrackingData>{
 	@Id
     public String id;
 	
+	@Indexed
 	private String qrcode;
+	
+	@Indexed
 	private String lotNumber;
 	private String productName;
 	private String manufacturerId;

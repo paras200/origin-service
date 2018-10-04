@@ -137,6 +137,7 @@ public class ReportingRepo {
 		
 		Query query = new Query();
 		query.addCriteria(criteria);
+		mongoQueryMgr.addSorting("timeinmilli",query);
 		List<TransactionInfo>  result = operations.find(query, TransactionInfo.class);
 		log.info("result size retruned : " + result.size());
 		return result;

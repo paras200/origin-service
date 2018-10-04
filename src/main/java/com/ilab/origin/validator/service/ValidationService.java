@@ -4,8 +4,12 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
@@ -24,13 +28,17 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ilab.origin.common.model.QueryParamTO;
 import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.common.utils.DateUtils;
+import com.ilab.origin.common.utils.NumberUtil;
+import com.ilab.origin.common.utils.QRType;
 import com.ilab.origin.feedback.mode.FeedBackData;
 import com.ilab.origin.feedback.service.FeedbackService;
 import com.ilab.origin.serial.SerialNumberGenerator;
-import com.ilab.origin.serial.TimestampSerialization;
+import com.ilab.origin.serial.UUIDSerialization;
 import com.ilab.origin.tracker.error.OriginException;
+import com.ilab.origin.usermgt.model.Location;
 import com.ilab.origin.validator.model.OriginData;
 import com.ilab.origin.validator.model.OriginStatus;
 import com.ilab.origin.validator.model.OriginTrack;
@@ -38,6 +46,7 @@ import com.ilab.origin.validator.model.QRGenInputData;
 import com.ilab.origin.validator.model.Result;
 import com.ilab.origin.validator.repo.ValidatorRepo;
 import com.ilab.origin.validator.to.OriginDataTO;
+import com.ilab.origin.validator.to.UserScanListTo;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -50,7 +59,7 @@ public class ValidationService {
 	@Autowired
 	private OriginTrackRecorder originTrackRecorder;
 	
-	private SerialNumberGenerator slgenerator = TimestampSerialization.getInstance();
+	private SerialNumberGenerator slgenerator = UUIDSerialization.getInstance();
 	
 	@Autowired 
 	private MongoOperations operations;
@@ -75,7 +84,7 @@ public class ValidationService {
 		log.info(" saving QR code :" + vDataList);
 		long timeinmilli = Calendar.getInstance().getTimeInMillis();
 		for (OriginData originData : vDataList) {
-			originData.setLatestScanStatus(-1);
+			originData.setLatestScanStatus(OriginStatus.NO_SCAN);
 			originData.setSold(false);
 			originData.setTimeinmilli(timeinmilli);
 		}
@@ -85,13 +94,23 @@ public class ValidationService {
 	
 	@PostMapping("/generate-qrcode")	
 	public List<OriginDataTO> saveAllQRCode(@RequestBody QRGenInputData inputData) throws OriginException{		
+		
 		if(inputData.getOriginData()== null || inputData.getOriginData().getMerchantId() == null){
 			throw new OriginException("Merchant Id can't null");
 		}
-		
+		boolean generateReadQr = false;
+		if(QRType.DUAL.name().equalsIgnoreCase(inputData.getQrType()))
+		{
+			generateReadQr = true;
+		}
 		List<OriginData> vDataList = new ArrayList<>();
 		int count = inputData.getCount();
 		List<String> serialNumberList = slgenerator.getSequenceNumber(count);
+		List<String> readQrList = null;
+		if(generateReadQr) {
+			readQrList = slgenerator.getSequenceNumber(count, OriginData.READY_ONLY);	
+		}
+		
 		long timeinmilli = Calendar.getInstance().getTimeInMillis();
 		for (int i =0 ; i < count; i++) {
 			OriginData vd;
@@ -99,7 +118,10 @@ public class ValidationService {
 				vd = (OriginData) inputData.getOriginData().clone();
 				String qrcode = generateQrcode(vd, serialNumberList.get(i));
 				vd.setQrCode(qrcode);
-				vd.setLatestScanStatus(-1);
+				if(generateReadQr) {
+					vd.setReadQrcode(readQrList.get(i));
+				}
+				vd.setLatestScanStatus(OriginStatus.NO_SCAN);
 				vd.setSold(false);
 				vd.setTimeinmilli(timeinmilli);
 				vDataList.add(vd);
@@ -119,6 +141,7 @@ public class ValidationService {
 		for (OriginData originData : vDataList) {
 			OriginDataTO dataTO = new OriginDataTO();
 			dataTO.setQrCode(originData.getQrCode());
+			dataTO.setReadQrcode(originData.getReadQrcode());
 			String displayText = originData.getQrCode() + " \n " + originData.getProductName() ;
 			dataTO.setDisplayText(displayText);
 			origList.add(dataTO);
@@ -141,11 +164,7 @@ public class ValidationService {
 	public List<OriginData>  getValidationData(@RequestParam(value="qrcode", required=false) String qrcode , @RequestParam(value="merchantId") String merchantId,
 				@RequestParam(value="startDate" , required=false) String startDate , @RequestParam(value="endDate" , required=false) String endDate) throws OriginException{
 		
-		//BasicQuery query = new BasicQuery("{ qrCode :\""+ qrcode +"\" , merchantId : \" "+ qrcode +"\" }");// merchantId : { $gt : 1000.00 }
-		//List<OriginData> result = operations.find(query, OriginData.class);
-		if(StringUtils.isEmpty(merchantId)) {
-			throw new OriginException("merchantId is mandatory, please provide the same");
-		}
+		validateInputParam(merchantId);
 		Criteria criteria = null;
 		if(!StringUtils.isEmpty(qrcode)) {
 			criteria = Criteria.where("qrCode").is(qrcode);
@@ -178,9 +197,11 @@ public class ValidationService {
 	}
 	
 	@RequestMapping(value="/generic-query" , method = { RequestMethod.POST ,RequestMethod.GET })
-	public List<OriginData>  getValidationData(@RequestParam Map<String, String> queryMap ,@RequestParam(value="pageNum", required=false) Integer pageNum , @RequestParam(value="pageSize", required=false) Integer pageSize  ) throws OriginException{
-		
-		List<?> results =  mongoQueryMgr.executeQuery(queryMap, OriginData.class,"timeinmilli", pageNum, pageSize);	
+	public List<OriginData>  getValidationData(@RequestBody QueryParamTO paramTO) throws OriginException{
+		Map<String,String> queryMap = paramTO.getQueryMap();
+		String merchantId = queryMap.get("merchantId");
+		validateInputParam(merchantId);
+		List<?> results =  mongoQueryMgr.executeQuery(queryMap, OriginData.class,"timeinmilli", paramTO.getPageNum(), paramTO.getPageSize());	
 		log.info("result size retruned : " + results.size());
 		
 		List<OriginData> updatedResult = new ArrayList<>();
@@ -191,6 +212,96 @@ public class ValidationService {
 		updateUserFeedbackInfo(updatedResult);
 		return updatedResult;
 	}
+
+	private void validateInputParam(String merchantId) throws OriginException {
+		if(StringUtils.isEmpty(merchantId)) {
+			throw new OriginException("merchantId is mandatory, please provide the same");
+		}
+	}
+	
+	@RequestMapping(value="/qrcode/analytics" , method = { RequestMethod.POST ,RequestMethod.GET })
+	public Map<String, String>  generateQrAnalytics(@RequestBody Map<String, String> queryMap) throws OriginException{
+		String merchantId = queryMap.get("merchantId");
+		validateInputParam(merchantId);
+		
+		Query query = mongoQueryMgr.createQuery(queryMap);
+		query.fields().include("qrCode");
+		query.fields().include("latestScanStatus");
+		List<?> results =  mongoQueryMgr.executeQuery(queryMap, OriginData.class);	
+		log.info("result size retruned : " + results.size());
+		
+		List<OriginData> updatedResult = new ArrayList<>();
+		for (Object resObj : results) {
+			OriginData od = (OriginData) resObj;
+			updatedResult.add(od);
+		}
+		updateUserFeedbackInfo(updatedResult);
+		int totalCount = updatedResult.size();
+		float notScanned = updatedResult.stream().filter(x -> OriginStatus.NO_SCAN == x.getLatestScanStatus()).count();
+		float userFeedBack = updatedResult.stream().filter(x -> Boolean.TRUE.equals(x.isUserFeeback())).count();
+		float scannedNoFeed = (totalCount - notScanned) - userFeedBack;
+		
+		Map<String, String> resultMap = new HashMap<>();
+		resultMap.put("Not Scanned", NumberUtil.floatToString((notScanned*100)/totalCount));
+		resultMap.put("Scanned with Feedback", NumberUtil.floatToString((userFeedBack*100)/totalCount));
+		resultMap.put("Scanned- No feedback", NumberUtil.floatToString((scannedNoFeed*100)/totalCount));
+		return resultMap;
+	}
+	
+	@RequestMapping(value="/location/analytics" , method = { RequestMethod.POST ,RequestMethod.GET })
+	public Map<String, String>  locationAnalytics(@RequestBody Map<String, String> queryMap) throws OriginException{
+		String merchantId = queryMap.get("merchantId");
+		validateInputParam(merchantId);
+		
+		Criteria criteria =  mongoQueryMgr.createQueryCriteria(queryMap);
+		//criteria.andOperator(Criteria.where("latestScanStatus").ne(-1));
+		
+		Query query = new Query();
+		query.addCriteria(criteria);
+		query.fields().include("qrCode");
+		query.fields().include("latestScanStatus");
+		query.fields().include("location");
+		
+	
+		List<?> results =  mongoQueryMgr.executeQuery(OriginData.class, query)	;
+		log.info("result size retruned : " + results.size());
+		
+		List<OriginData> updatedResult = new ArrayList<>();
+		for (Object resObj : results) {
+			OriginData od = (OriginData) resObj;
+			updatedResult.add(od);
+		}
+	    List<OriginData> finalResult = updatedResult.stream().filter(x -> x.getLatestScanStatus() != -1).collect(Collectors.toList());
+	    Map<Location, Long> dataMap = finalResult.stream().filter(x-> x.getLocation() != null).collect(Collectors.groupingBy(OriginData::getLocation, Collectors.counting()));
+		
+	    int total = finalResult.size();
+	    
+		Map<String, String> resultMap = new HashMap<>();
+		Set<Location> locKey = dataMap.keySet();
+		Iterator<Location> itr = locKey.iterator();
+		int locCount =0;
+		while(itr.hasNext()) {
+			Location loc = itr.next();
+			if(loc != null) {
+				long count = dataMap.get(loc);
+				if(loc.getAddress() != null) {
+					resultMap.put(loc.getAddress(), NumberUtil.floatToString((count*100)/total));	
+					locCount += count;
+				}else {
+					resultMap.put("--", NumberUtil.floatToString((count*100)/total));
+					locCount +=count;
+				}
+				
+			}
+		}
+		if(total > 0) {
+			resultMap.put("No Location", NumberUtil.floatToString(((total -locCount)*100)/total));	
+		}
+		
+
+		return resultMap;
+	}
+	
 	
 	private void updateUserFeedbackInfo(List<OriginData> result) {
 		List<String> qrList = result.stream().map(OriginData::getQrCode).collect(Collectors.toList());
@@ -213,7 +324,16 @@ public class ValidationService {
 	
 	@RequestMapping(value="/mark-sold" , method = { RequestMethod.GET, RequestMethod.POST })
 	public OriginData markSold(@RequestBody OriginTrack oTrack){
-		OriginData vd = repository.findByQrCode(oTrack.getQrcode());
+		OriginData vd = null;
+		boolean readOnly = false;
+		if(oTrack.getQrcode() != null && oTrack.getQrcode().startsWith(OriginData.READY_ONLY)) {
+			readOnly = true;
+			vd = repository.findByReadQrcode(oTrack.getQrcode());
+		}else {
+			vd = repository.findByQrCode(oTrack.getQrcode());
+		}
+		
+		 
 		if(vd == null) {
 			// invalid product
 			vd = new OriginData();
@@ -228,19 +348,30 @@ public class ValidationService {
 			vd.setFirstScanTime(new Date());
 			vd.setLatestScanTime(vd.getFirstScanTime());
 			vd.setLatestScanStatus(OriginStatus.GREEN);
-			vd = repository.save(vd);
+			if(!readOnly) {
+				// don't save for scan of outer qr
+				vd = repository.save(vd);	
+			}
+			
 			vd.setStatusCode(OriginStatus.GREEN);
 			vd.setMessage(OriginStatus.getStatusMessage(OriginStatus.GREEN));
+			oTrack.setProductName(vd.getProductName());
+			oTrack.setManufacturerName(vd.getManufacturerName()); // TODO to add
 			updateOrginTrack(oTrack , vd);
 			originTrackRecorder.asyncSave(oTrack);
 		}else {
 			// already sold
 			vd.setLatestScanTime(new Date());
 			vd.setLatestScanStatus(OriginStatus.AMBER);
-			vd = repository.save(vd);
+			if(!readOnly) {
+				// don't save for scan of outer qr
+				vd = repository.save(vd);	
+			}
 			vd.setStatusCode(OriginStatus.AMBER);
 			vd.setMessage(OriginStatus.getStatusMessage(OriginStatus.AMBER));
 			updateOrginTrack(oTrack , vd);
+			oTrack.setProductName(vd.getProductName());
+			oTrack.setManufacturerName(vd.getManufacturerName()); // TODO to add
 			originTrackRecorder.asyncSave(oTrack);
 		}
 		return vd ;
@@ -249,6 +380,42 @@ public class ValidationService {
 	@RequestMapping(value="/get-scan-hist" , method = { RequestMethod.GET, RequestMethod.POST })
 	public List<OriginTrack> getScanHistory(@RequestParam(value="qrcode") String qrcode){
 		return originTrackRecorder.getTrackHistory(qrcode);
+	}
+	
+	// TODO remove it
+	@RequestMapping(value="/get-userscan-hist" , method = { RequestMethod.GET, RequestMethod.POST })
+	public List<OriginTrack> getUserScanHistory(@RequestParam(value="userid") String userId){
+		List<OriginTrack> scanList = originTrackRecorder.getTrackHistoryByUserId(userId);
+		return scanList;
+	}
+	
+	@RequestMapping(value="/get-user-product-hist" , method = { RequestMethod.GET, RequestMethod.POST })
+	public List<UserScanListTo> getUserScanHistoryNew(@RequestParam(value="userid") String userId){
+		
+		List<UserScanListTo> resultList = new ArrayList<>();
+
+		Map<String, UserScanListTo> resMap = new LinkedHashMap<>();
+		
+		List<OriginTrack> scanList = originTrackRecorder.getTrackHistoryByUserId(userId);
+		for (OriginTrack originTrack : scanList) {
+			String key = originTrack.getProductName() +"-"+originTrack.getQrcode();
+			UserScanListTo scanData = resMap.get(key);
+			if(scanData == null) {
+				scanData = new UserScanListTo();
+				scanData.setOriginTrack(originTrack);
+				resMap.put(key, scanData);
+				resultList.add(scanData);
+			}else {
+				List<OriginTrack> trackList =  scanData.getScanList();
+				if(trackList == null) {
+					trackList = new ArrayList<>();
+					scanData.setScanList(trackList);
+				}
+				originTrack.setLocation(null);// to reduce payload
+				trackList.add(originTrack);
+			}
+		}
+		return resultList;
 	}
 	
 	private OriginTrack updateOrginTrack(OriginTrack oTrack, OriginData vd) {

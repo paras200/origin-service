@@ -17,6 +17,7 @@ public class OriginData implements Cloneable{
 
 	public static boolean SOLD = true;
 	public static boolean NOT_SOLD = false;
+	public static String READY_ONLY= "RO-";
 	
 	@Id
     public String id;
@@ -25,11 +26,16 @@ public class OriginData implements Cloneable{
 	private String qrCode;
 	
 	@Indexed
+	private String readQrcode;
+	
+	@Indexed
 	private String productName;
 	private String productCode;
 	
 	@Indexed
 	private String merchantId;
+	private String merchantKey;
+	private String manufacturerName;
 	
 	private String gstn;
 	private String expiryDate;
@@ -42,17 +48,18 @@ public class OriginData implements Cloneable{
 	private Map<String, String> dataMap;
 	private boolean isSold = NOT_SOLD;
 	
-	private int statusCode;
-	private String message;
-	
 	private Location location;
 	private long timeinmilli = Calendar.getInstance().getTimeInMillis();
 	private Date latestScanTime = new Date();
 	
 	@Indexed
-	private int latestScanStatus;
+	private int latestScanStatus = OriginStatus.NO_SCAN;
 	private Date firstScanTime ;
 	private boolean includeOriginCheck = true;
+	
+	// Transient field not saved
+	private int statusCode;
+	private String message;
 	private boolean userFeeback = false;
 	
 	
@@ -68,6 +75,15 @@ public class OriginData implements Cloneable{
 	public void setQrCode(String qrCode) {
 		this.qrCode = qrCode;
 	}
+	
+	public String getReadQrcode() {
+		return readQrcode;
+	}
+
+	public void setReadQrcode(String readQrcode) {
+		this.readQrcode = readQrcode;
+	}
+
 	public Map<String, String> getDataMap() {
 		return dataMap;
 	}
@@ -87,9 +103,27 @@ public class OriginData implements Cloneable{
 	public void setMerchantId(String merchantId) {
 		this.merchantId = merchantId;
 	}
+	
+	public String getManufacturerName() {
+		return manufacturerName;
+	}
+
+	public void setManufacturerName(String manufacturerName) {
+		this.manufacturerName = manufacturerName;
+	}
+
 	public void setId(String id) {
 		this.id = id;
 	}
+	
+	public String getMerchantKey() {
+		return merchantKey;
+	}
+
+	public void setMerchantKey(String merchantKey) {
+		this.merchantKey = merchantKey;
+	}
+
 	public boolean isSold() {
 		return isSold;
 	}
@@ -202,21 +236,6 @@ public class OriginData implements Cloneable{
 		sb.append("Serial Num : " + serialNumber);
 		return sb.toString();
 	}
-	
-	@Override
-	public String toString() {
-		return "OriginData [id=" + id + ", qrCode=" + qrCode + ", productName=" + productName + ", merchantId="
-				+ merchantId + ", getQrCode()=" + getQrCode() + ", getDataMap()=" + getDataMap() + ", getProductName()="
-				+ getProductName() + ", getMerchantId()=" + getMerchantId() + ", isSold()=" + isSold() + ", getGstn()="
-				+ getGstn() + ", getExpiryDate()=" + getExpiryDate() + ", getLotNumber()=" + getLotNumber()
-				+ ", getSerialNumber()=" + getSerialNumber() + ", getOtherInfo()=" + getOtherInfo() + ", getLocation()="
-				+ getLocation() + ", getStatusCode()=" + getStatusCode() + ", getMessage()=" + getMessage()
-				+ ", getTimeinmilli()=" + getTimeinmilli() + ", getLatestScanTime()=" + getLatestScanTime()
-				+ ", getLatestScanStatus()=" + getLatestScanStatus() + ", getFirstScanTime()=" + getFirstScanTime()
-				+ ", getClass()=" + getClass() + ", hashCode()=" + hashCode() + ", toString()=" + super.toString()
-				+ "]";
-	}	
-	
 	
 	
 }

@@ -37,4 +37,13 @@ public class TimestampSerialization implements SerialNumberGenerator {
 		return seqList;
 	}
 
+	@Override
+	public synchronized List<String> getSequenceNumber(int count, String prefix) {
+		List<String> seqList = new ArrayList<>();
+		String seqNumber = getSequenceNumber();
+		for (int i = 1; i <= count; i++) {
+			seqList.add(prefix+seqNumber + "-" + i);
+		}
+		return seqList;
+	}
 }
