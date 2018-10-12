@@ -10,11 +10,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ilab.origin.email.EmailClient;
 import com.ilab.origin.mobileapp.common.AppResult;
 import com.ilab.origin.mobileapp.model.AppUser;
 import com.ilab.origin.mobileapp.repo.AppUserRepository;
+import com.ilab.origin.password.PasswordService;
 import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.validator.model.Result;
 
@@ -27,6 +30,12 @@ public class AppUserService {
 	
 	@Autowired
 	private AppUserRepository userRepo;
+	
+	@Autowired
+	private EmailClient emailClient;
+	
+	@Autowired
+	private PasswordService passService;
 	
 	@PostMapping("/register-newuser")	
 	public AppResult registerNewUser(@RequestBody AppUser user) throws OriginException{		
@@ -71,5 +80,37 @@ public class AppUserService {
 	@RequestMapping(value = "/all-users" , method = { RequestMethod.GET, RequestMethod.POST })
 	public List<AppUser> getAllUsers(){
 		return userRepo.findAll();
+	}
+	
+	@RequestMapping(value = "/send-temp-password" , method = { RequestMethod.GET, RequestMethod.POST })
+	public Result sendTempPassword(@RequestParam(value="userId") String userId){
+		AppUser appuser = userRepo.findByUserId(userId);
+		Result rs = new Result();
+		if(appuser == null) {
+			rs.setStatus(Result.STATUS_FAILUER);
+			rs.setMessage("User Id  : "+ userId+"  doesn't exits");
+		}else {
+			appuser.setIsTempPassword(true);
+			String tempPass = passService.generatePasswordSequence();
+			appuser.setPassword(tempPass);
+			userRepo.save(appuser);
+			
+			emailClient.sendTemporaryPassword(userId, tempPass);
+			rs.setStatus(Result.STATUS_SUCCESS);
+			rs.setMessage("Email is sent on email id : "+ userId+" ");
+		}
+		return rs;
+	}
+	
+	@PostMapping("/change-password")	
+	public AppUser saveUser(@RequestParam(value="userId") String userId , @RequestParam(value="password") String password){		
+		log.info(" change password for user :" + userId);
+		AppUser user = userRepo.findByUserId(userId);
+		if(user != null) {
+			user.setIsTempPassword(false);
+			user.setPassword(password);
+			return userRepo.save(user);
+		}
+		return null;
 	}
 }

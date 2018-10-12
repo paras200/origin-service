@@ -20,7 +20,7 @@ public class Result {
 	private String status;
 	
 	public Result() {
-		
+		this.status = STATUS_SUCCESS;
 	}
 	
 	public Result(String status) {

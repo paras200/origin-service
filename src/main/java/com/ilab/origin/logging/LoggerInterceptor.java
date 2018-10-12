@@ -44,5 +44,6 @@ public class LoggerInterceptor extends HandlerInterceptorAdapter {
 	        ex.printStackTrace();
 	    }
 	    log.info("Request completed [" + request.getRequestURI() + "][exception: " + ex + "]");
+	    //log.info(response.g);
 	}
 }

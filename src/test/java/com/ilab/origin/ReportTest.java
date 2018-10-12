@@ -1,5 +1,6 @@
 package com.ilab.origin;
 
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,8 @@ import com.ilab.origin.common.model.QueryParamTO;
 import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.validator.model.OriginData;
 import com.ilab.origin.validator.service.ValidationService;
+
+import junit.framework.Assert;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -42,6 +45,10 @@ public class ReportTest {
 	public void qrAnalyticTest() throws OriginException {
 		Map<String, String> queryMap = new HashMap<>();
 		queryMap.put("merchantId", "1000");
+		queryMap.put("productName", "Ghee");
+		//queryMap.put("expiryDate", "10/10/2016");
+		queryMap.put("startDate", "10/10/2016");
+		queryMap.put("endDate", "11/10/2017");
 		Map<String,String> resMap  = validationService.generateQrAnalytics(queryMap);
 		System.out.println("size : " + resMap);
 		
@@ -55,5 +62,12 @@ public class ReportTest {
 		Map<String,String> resMap  = validationService.locationAnalytics(queryMap);
 		System.out.println("locationAnalyticTest : " + resMap);
 		
+	}
+	
+	@Test
+	public void quCountTest() throws OriginException, ParseException {
+		Long count = validationService.getQRCount("1000", "10/10/2010");
+		System.out.println("count : " + count);
+		Assert.assertTrue(count > 0);
 	}
 }

@@ -21,6 +21,7 @@ import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.email.EmailClient;
 import com.ilab.origin.mobileapp.model.AppUser;
 import com.ilab.origin.mobileapp.repo.AppUserRepository;
+import com.ilab.origin.password.PasswordService;
 import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.usermgt.model.Merchant;
 import com.ilab.origin.usermgt.model.User;
@@ -51,13 +52,28 @@ public class UserService {
 	@Autowired
 	private AppUserRepository appUserRepo;
 	
+	@Autowired
+	private PasswordService passService;
+	
 	//TODO - remove this API
 	@PostMapping("/user/save")	
 	public User saveUser(@RequestBody User user){		
 		log.info(" saving user :" + user);
+		user.setIsTempPassword(false);
 		return userRepo.save(user);
 	}
 	
+	@PostMapping("/user/change-password")	
+	public User saveUser(@RequestParam(value="userId") String userId , @RequestParam(value="password") String password){		
+		log.info(" change password for user :" + userId);
+		User user = userRepo.findByUserId(userId);
+		if(user != null) {
+			user.setIsTempPassword(false);
+			user.setPassword(password);
+			return userRepo.save(user);
+		}
+		return null;
+	}
 	
 	@PostMapping("/user/register-newuser")	
 	public User registerNewUser(@RequestBody User user) throws OriginException{		
@@ -143,5 +159,25 @@ public class UserService {
 	public User registerMerchantUser(@RequestBody User user) throws OriginException{		
 		user.setIsActive(true);
 		return userRepo.save(user);
+	}
+	
+	@RequestMapping(value = "/user/send-temp-password" , method = { RequestMethod.GET, RequestMethod.POST })
+	public Result sendTempPassword(@RequestParam(value="userId") String userId){
+		User merchantUser = userRepo.findByUserId(userId);
+		Result rs = new Result();
+		if(merchantUser == null) {
+			rs.setStatus(Result.STATUS_FAILUER);
+			rs.setMessage("User Id  : "+ userId+"  doesn't exits");
+		}else {
+			merchantUser.setIsTempPassword(true);
+			String tempPassword = passService.generatePasswordSequence();
+			merchantUser.setPassword(tempPassword);
+			userRepo.save(merchantUser);
+			
+			emailClient.sendTemporaryPassword(userId, tempPassword);
+			rs.setStatus(Result.STATUS_SUCCESS);
+			rs.setMessage("Email is sent on email id : "+ userId+" ");
+		}
+		return rs;
 	}
 }

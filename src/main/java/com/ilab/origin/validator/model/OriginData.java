@@ -9,11 +9,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.ilab.origin.common.model.QRData;
 import com.ilab.origin.usermgt.model.Location;
 
 @EntityScan
 @Document
-public class OriginData implements Cloneable{
+public class OriginData implements Cloneable, QRData{
 
 	public static boolean SOLD = true;
 	public static boolean NOT_SOLD = false;
@@ -49,6 +50,7 @@ public class OriginData implements Cloneable{
 	private boolean isSold = NOT_SOLD;
 	
 	private Location location;
+	
 	private long timeinmilli = Calendar.getInstance().getTimeInMillis();
 	private Date latestScanTime = new Date();
 	
@@ -235,6 +237,14 @@ public class OriginData implements Cloneable{
 		sb.append("GSTN : " + gstn ).append("\n");
 		sb.append("Serial Num : " + serialNumber);
 		return sb.toString();
+	}
+
+	@Override
+	public String toString() {
+		return "OriginData [qrCode=" + qrCode + ", productName=" + productName + ", merchantId=" + merchantId
+				+ ", merchantKey=" + merchantKey + ", expiryDate=" + expiryDate + ", lotNumber=" + lotNumber
+				+ ", timeinmilli=" + timeinmilli + ", latestScanTime=" + latestScanTime
+				+ ", latestScanStatus=" + latestScanStatus + "]";
 	}
 	
 	

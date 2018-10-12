@@ -38,7 +38,7 @@ public class EmailClient {
 	}
 
 	public void sendUserRegistrationLink(String emailId, String userCode) {
-		String uri = originBaseServerUrl+"/#/auth/user-register?userCode=" + userCode;
+		String uri = originBaseServerUrl+"/app/#/auth/user-register?userCode=" + userCode;
 		String body =" Hi \n   You have been invited to join Origin Scan, please use the link below to Register \n";
 		body += uri;
 		String subject = "Invitation To Join Origin Scan";
@@ -56,6 +56,27 @@ public class EmailClient {
 		}
 
 	}
+	
+	public void sendTemporaryPassword(String emailId, String tempPassword) {
+		StringBuilder body = new StringBuilder(" Hi \n   A temporary password is generated  as per your request \n");
+		body.append("\n Your Temporary password for Origin Scan : " + tempPassword  +" \n");
+		body.append("\n Please this to login to the origin Scane and then change the password \n");
+		String subject = "Temporary Password for Origin Scan";
+		try {
+	        RestTemplate restTemplate = new RestTemplate();
+	        EmailBody eb = new EmailBody();
+	        eb.setBody(body.toString());
+	        eb.setSubject(subject);
+	        eb.getToList().add(emailId);
+	        eb.getToList().add("coinxlab@gmail.com");
+	        log.info("sending email .... "  + eb);
+			restTemplate.postForEntity(customEmailUrl, eb, String.class);			
+		}catch(Exception ex) {
+			log.error("Error sending email ", ex);
+		}
+
+	}
+	
 	public void sendInternalError(String body) {
 		try {
 	        RestTemplate restTemplate = new RestTemplate();

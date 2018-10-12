@@ -35,9 +35,10 @@ public class ReportingRepo {
 	private MongoQueryManager mongoQueryMgr;
 	
 	public TraceReportTo detailedReport(String qrcode, String lotNumber) throws OriginException {
-		Criteria criteria = null;
-		criteria = mongoQueryMgr.addToQuery("qrcode",qrcode, criteria);
-		criteria = mongoQueryMgr.addToQuery("lotNumber",lotNumber, criteria);
+		List<Criteria> cList = null;
+		cList = mongoQueryMgr.addToQuery("qrcode",qrcode, cList);
+		cList = mongoQueryMgr.addToQuery("lotNumber",lotNumber, cList);
+		Criteria criteria = mongoQueryMgr.createCriteria(cList);
 		
 		Query query = new Query();
 		query.addCriteria(criteria);
@@ -60,21 +61,22 @@ public class ReportingRepo {
 	}
 	
 	public List<TraceReportTo> detailedReport(List<String> qrcode, List<String> lotNumber) throws OriginException {
-		Criteria criteria = null;
-		criteria = mongoQueryMgr.addToInQuery("qrcode",qrcode, criteria);
-		criteria = mongoQueryMgr.addToInQuery("lotNumber",lotNumber, criteria);
+		List<Criteria> cList = new ArrayList<>();
+		cList = mongoQueryMgr.addToInQuery("qrcode",qrcode, cList);
+		cList = mongoQueryMgr.addToInQuery("lotNumber",lotNumber, cList);
 		
+		Criteria criteria = mongoQueryMgr.createCriteria(cList);
 		List<TraceReportTo> reportTo = getDataByCriteria(criteria);
 		return reportTo;
 	}
 
 	public List<TraceReportTo> detailedReport(String qrcode, String merchantId, String productName, String lotNumber) {
-		Criteria criteria = null;
-		criteria = mongoQueryMgr.addToQuery("qrcode",qrcode, criteria);
-		criteria = mongoQueryMgr.addToQuery("merchantId",merchantId, criteria);
-		criteria = mongoQueryMgr.addToQuery("productName",productName, criteria);
-		criteria = mongoQueryMgr.addToQuery("lotNumber",lotNumber, criteria);
-	
+		List<Criteria> cList = null;
+		cList = mongoQueryMgr.addToQuery("qrcode",qrcode, cList);
+		cList = mongoQueryMgr.addToQuery("merchantId",merchantId, cList);
+		cList = mongoQueryMgr.addToQuery("productName",productName, cList);
+		cList = mongoQueryMgr.addToQuery("lotNumber",lotNumber, cList);
+		Criteria criteria = mongoQueryMgr.createCriteria(cList);
 		List<TraceReportTo> result = getDataByCriteria(criteria);
 		log.info("result size retruned : " + result.size());
 		return result;
@@ -93,7 +95,7 @@ public class ReportingRepo {
 		}
 		
 		Criteria criteria2 = null;
-		criteria2 = mongoQueryMgr.addToInQuery("qrcode",qrcodes, criteria2);
+		criteria2 = mongoQueryMgr.addToInQuery("qrcode",qrcodes);
 		Query query2 = new Query();
 		query2.addCriteria(criteria2);
 		List<TrackingData>  traceList = operations.find(query2, TrackingData.class);
@@ -128,12 +130,13 @@ public class ReportingRepo {
 	}
 
 	public List<TransactionInfo> summaryView(String qrcode, String merchantId, String productName, String lotNumber) {
-		Criteria criteria = null;
-		criteria = mongoQueryMgr.addToQuery("qrcode",qrcode, criteria);
-		criteria = mongoQueryMgr.addToQuery("merchantId",merchantId, criteria);
-		criteria = mongoQueryMgr.addToQuery("productName",productName, criteria);
-		criteria = mongoQueryMgr.addToQuery("lotNumber",lotNumber, criteria);
+		List<Criteria> cList = null;
+		cList = mongoQueryMgr.addToQuery("qrcode",qrcode, cList);
+		cList = mongoQueryMgr.addToQuery("merchantId",merchantId, cList);
+		cList = mongoQueryMgr.addToQuery("productName",productName, cList);
+		cList = mongoQueryMgr.addToQuery("lotNumber",lotNumber, cList);
 		
+		Criteria criteria = mongoQueryMgr.createCriteria(cList);
 		
 		Query query = new Query();
 		query.addCriteria(criteria);
@@ -143,27 +146,4 @@ public class ReportingRepo {
 		return result;
 	}
 
-	/**
-	private Criteria addToQuery(String fieldName, String value, Criteria criteria) {
-		if(StringUtils.isEmpty(value)) return criteria;
-		
-		if(criteria == null) {
-			criteria = Criteria.where(fieldName).is(value);
-		}else {
-			criteria = criteria.andOperator(Criteria.where(fieldName).is(value));
-		}
-		return criteria;
-	}
-	
-	private Criteria addToInQuery(String fieldName, List<String> value, Criteria criteria) {
-		if(StringUtils.isEmpty(value)) return criteria;
-		
-		if(criteria == null) {
-			criteria = Criteria.where(fieldName).in(value);
-		}else {
-			criteria = criteria.andOperator(Criteria.where(fieldName).in(value));
-		}
-		return criteria;
-	}
-	**/
 }

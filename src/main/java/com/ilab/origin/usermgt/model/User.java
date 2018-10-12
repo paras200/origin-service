@@ -29,7 +29,8 @@ public class User {
 	@Indexed
 	private String userCode;
 	private Boolean isActive = true;
-	
+	private Boolean isTempPassword = false;
+
 	@Indexed
 	private String userType; 
 
@@ -136,6 +137,14 @@ public class User {
 
 	public void setIsActive(Boolean isActive) {
 		this.isActive = isActive;
+	}
+
+	public Boolean getIsTempPassword() {
+		return isTempPassword;
+	}
+
+	public void setIsTempPassword(Boolean isTempPassword) {
+		this.isTempPassword = isTempPassword;
 	}
 
 	@Override

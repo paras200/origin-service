@@ -21,6 +21,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ilab.origin.certificates.model.Certificates;
+import com.ilab.origin.certificates.service.CertificatesValidationService;
+import com.ilab.origin.common.model.QRData;
 import com.ilab.origin.common.model.QueryParamTO;
 import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.common.utils.DateUtils;
@@ -43,7 +47,6 @@ import com.ilab.origin.validator.model.OriginData;
 import com.ilab.origin.validator.model.OriginStatus;
 import com.ilab.origin.validator.model.OriginTrack;
 import com.ilab.origin.validator.model.QRGenInputData;
-import com.ilab.origin.validator.model.Result;
 import com.ilab.origin.validator.repo.ValidatorRepo;
 import com.ilab.origin.validator.to.OriginDataTO;
 import com.ilab.origin.validator.to.UserScanListTo;
@@ -70,6 +73,9 @@ public class ValidationService {
 	@Autowired
 	private MongoQueryManager mongoQueryMgr;
 	
+	@Autowired
+	private CertificatesValidationService certificatesValidationService;
+	
 	private static Log log = LogFactory.getLog(ValidationService.class.getName());
 	
 	@PostMapping("/save-qrcode")	
@@ -80,16 +86,20 @@ public class ValidationService {
 	}
 	
 	@PostMapping("/save-all-codes")	
-	public Result saveAllQRCode(@RequestBody List<OriginData> vDataList){		
+	public List<OriginData> saveAllQRCode(@RequestBody List<OriginData> vDataList){		
 		log.info(" saving QR code :" + vDataList);
 		long timeinmilli = Calendar.getInstance().getTimeInMillis();
-		for (OriginData originData : vDataList) {
+		List<String> serialNumberList = slgenerator.getSequenceNumber(vDataList.size());
+		for (int i = 0; i < vDataList.size(); i++) {
+			OriginData originData = vDataList.get(i);
 			originData.setLatestScanStatus(OriginStatus.NO_SCAN);
 			originData.setSold(false);
+			String qrcode = generateQrcode(originData, serialNumberList.get(i));
+			originData.setQrCode(qrcode);
 			originData.setTimeinmilli(timeinmilli);
 		}
-		repository.save(vDataList);
-		return new Result();
+		List<OriginData> result = repository.save(vDataList);
+		return result;
 	}
 	
 	@PostMapping("/generate-qrcode")	
@@ -135,7 +145,8 @@ public class ValidationService {
 		List<OriginDataTO> oList = getOriginDataTo(vDataList);
 		return oList;
 	}
-	  
+	
+	
 	private List<OriginDataTO> getOriginDataTo(List<OriginData> vDataList) {
 		List<OriginDataTO> origList = new ArrayList<>();
 		for (OriginData originData : vDataList) {
@@ -200,8 +211,18 @@ public class ValidationService {
 	public List<OriginData>  getValidationData(@RequestBody QueryParamTO paramTO) throws OriginException{
 		Map<String,String> queryMap = paramTO.getQueryMap();
 		String merchantId = queryMap.get("merchantId");
+		
 		validateInputParam(merchantId);
-		List<?> results =  mongoQueryMgr.executeQuery(queryMap, OriginData.class,"timeinmilli", paramTO.getPageNum(), paramTO.getPageSize());	
+		
+		Criteria qrDateCriteria = handleQRGenDateCriteria(queryMap);
+		List<Criteria> criteriaList = mongoQueryMgr.createCriteriaList(queryMap);
+		if(criteriaList != null && qrDateCriteria != null) {
+			criteriaList.add(qrDateCriteria);
+		}
+		
+		Query query = mongoQueryMgr.createQuery(criteriaList);
+		
+		List<?> results =  mongoQueryMgr.executeQuery(query, OriginData.class,"timeinmilli", paramTO.getPageNum(), paramTO.getPageSize());	
 		log.info("result size retruned : " + results.size());
 		
 		List<OriginData> updatedResult = new ArrayList<>();
@@ -224,15 +245,24 @@ public class ValidationService {
 		String merchantId = queryMap.get("merchantId");
 		validateInputParam(merchantId);
 		
-		Query query = mongoQueryMgr.createQuery(queryMap);
+		Criteria qrDateCriteria = handleQRGenDateCriteria(queryMap);
+		
+		List<Criteria> criteriaList = mongoQueryMgr.createCriteriaList(queryMap);
+		if(criteriaList != null && qrDateCriteria != null) {
+			criteriaList.add(qrDateCriteria);
+		}
+		
+		Query query = mongoQueryMgr.createQuery(criteriaList);
 		query.fields().include("qrCode");
 		query.fields().include("latestScanStatus");
-		List<?> results =  mongoQueryMgr.executeQuery(queryMap, OriginData.class);	
+		query.fields().include("timeinmilli");
+		List<?> results =  mongoQueryMgr.executeQuery( OriginData.class , query);	
 		log.info("result size retruned : " + results.size());
 		
 		List<OriginData> updatedResult = new ArrayList<>();
 		for (Object resObj : results) {
 			OriginData od = (OriginData) resObj;
+			System.out.println(od);
 			updatedResult.add(od);
 		}
 		updateUserFeedbackInfo(updatedResult);
@@ -248,21 +278,46 @@ public class ValidationService {
 		return resultMap;
 	}
 	
+	private Criteria handleQRGenDateCriteria(Map<String, String> queryMap) throws OriginException {
+		String startDate = queryMap.get("startDate");
+		String endDate = queryMap.get("endDate");		
+		queryMap.remove("startDate");
+		queryMap.remove("endDate");
+		
+		if(StringUtils.isEmpty(endDate)) {
+			endDate = startDate;
+		}
+		if(!StringUtils.isEmpty(startDate)) {
+			try {
+				return Criteria.where("timeinmilli").gte(DateUtils.convertStartDate(startDate)).lt(DateUtils.convertEndDate(endDate));
+			} catch (ParseException e) {
+				e.printStackTrace();
+				throw new OriginException("date can't parsed , please chcek the format dd/MM/yyyy");
+			}
+		}
+		return null;
+	}
+
 	@RequestMapping(value="/location/analytics" , method = { RequestMethod.POST ,RequestMethod.GET })
 	public Map<String, String>  locationAnalytics(@RequestBody Map<String, String> queryMap) throws OriginException{
 		String merchantId = queryMap.get("merchantId");
 		validateInputParam(merchantId);
 		
-		Criteria criteria =  mongoQueryMgr.createQueryCriteria(queryMap);
+		//Criteria criteria =  mongoQueryMgr.createQueryCriteria(queryMap);
 		//criteria.andOperator(Criteria.where("latestScanStatus").ne(-1));
 		
-		Query query = new Query();
-		query.addCriteria(criteria);
+       Criteria qrDateCriteria = handleQRGenDateCriteria(queryMap);
+		
+		List<Criteria> criteriaList = mongoQueryMgr.createCriteriaList(queryMap);
+		if(criteriaList != null && qrDateCriteria != null) {
+			criteriaList.add(qrDateCriteria);
+		}
+		
+		Query query = mongoQueryMgr.createQuery(criteriaList);
 		query.fields().include("qrCode");
 		query.fields().include("latestScanStatus");
 		query.fields().include("location");
 		
-	
 		List<?> results =  mongoQueryMgr.executeQuery(OriginData.class, query)	;
 		log.info("result size retruned : " + results.size());
 		
@@ -290,15 +345,12 @@ public class ValidationService {
 				}else {
 					resultMap.put("--", NumberUtil.floatToString((count*100)/total));
 					locCount +=count;
-				}
-				
+				}			
 			}
 		}
 		if(total > 0) {
 			resultMap.put("No Location", NumberUtil.floatToString(((total -locCount)*100)/total));	
 		}
-		
-
 		return resultMap;
 	}
 	
@@ -313,26 +365,26 @@ public class ValidationService {
 		}
 	}
 	
-	
 
 	@RequestMapping(value="/get-by-merchant" , method = { RequestMethod.GET, RequestMethod.POST })
 	public List<OriginData> getByMerchant(@RequestParam(value="merchantId") String merchantId){
 		return repository.findByMerchantId(merchantId);
 	}
 	
-
 	
 	@RequestMapping(value="/mark-sold" , method = { RequestMethod.GET, RequestMethod.POST })
-	public OriginData markSold(@RequestBody OriginTrack oTrack){
+	public QRData markSold(@RequestBody OriginTrack oTrack){
 		OriginData vd = null;
 		boolean readOnly = false;
 		if(oTrack.getQrcode() != null && oTrack.getQrcode().startsWith(OriginData.READY_ONLY)) {
 			readOnly = true;
 			vd = repository.findByReadQrcode(oTrack.getQrcode());
-		}else {
+		}else if(oTrack.getQrcode() != null && oTrack.getQrcode().startsWith(Certificates.CERTIFICATES_QR_PREFIX)){
+			return certificatesValidationService.validateCertificates(oTrack.getQrcode());
+		}
+		else {
 			vd = repository.findByQrCode(oTrack.getQrcode());
 		}
-		
 		 
 		if(vd == null) {
 			// invalid product
@@ -416,6 +468,17 @@ public class ValidationService {
 			}
 		}
 		return resultList;
+	}
+	
+	@GetMapping(value="/get-qr-count")
+	public long getQRCount(@RequestParam(value="merchantId") String merchantId, @RequestParam(value="startDate" , required=false) String startDate ) throws OriginException, ParseException {
+		validateInputParam(merchantId);
+		Criteria criteria = Criteria.where("merchantId").is(merchantId);
+		if(! StringUtils.isEmpty(startDate)) {
+			criteria.andOperator(Criteria.where("timeinmilli").gt(DateUtils.convertStartDate(startDate)));	
+		}
+		Query query = mongoQueryMgr.createQuery(criteria);
+		return mongoQueryMgr.getCount(query, OriginData.class);
 	}
 	
 	private OriginTrack updateOrginTrack(OriginTrack oTrack, OriginData vd) {

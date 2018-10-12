@@ -1,5 +1,6 @@
 package com.ilab.origin.common.mongo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,6 +43,12 @@ private static Log log = LogFactory.getLog(MongoQueryManager.class.getName());
 		return executeQuery(className, query);
 	}
 
+	public List<?> executeQuery(Query query, Class<?> className, String sortField, Integer pageNum, Integer pageSize){
+		addSorting(sortField, query);
+		addPagination(pageNum, pageSize, query);
+		return executeQuery(className, query);
+	}
+	
 	public void addPagination(Integer pageNum, Integer pageSize, Query query) {
 		if(pageNum == null || pageSize == null || pageSize <=0) {
 			log.info("Pagination not applied");
@@ -70,34 +77,71 @@ private static Log log = LogFactory.getLog(MongoQueryManager.class.getName());
 		return query;
 	}
 	
+	public Query createQuery(Criteria criteria) {
+		Query query = new Query();
+		query.addCriteria(criteria);
+		return query;
+	}
+	
+	public Query createQuery(List<Criteria> criteriaList) {
+		Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]))  ;
+		Query query = new Query();
+		query.addCriteria(criteria);
+		return query;
+	}
+	
+	public List<?> executeQuery(Class<?> className, List<Criteria> criteriaList) {
+		Criteria criteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[criteriaList.size()]))  ;
+		Query query = new Query();
+		query.addCriteria(criteria);
+		return operations.find(query, className);
+	}
+	
 	public Criteria createQueryCriteria(Map<String, String> queryMap){
-		Criteria criteria = null;
-		Set<String> keys = queryMap.keySet();
-		for (String qfield : keys) {
-			criteria = addToQuery(qfield,queryMap.get(qfield), criteria);
-		}
+		
+		List<Criteria> cList = createCriteriaList(queryMap);
+		Criteria criteria = new Criteria().andOperator(cList.toArray(new Criteria[cList.size()]))  ;
 		return criteria;
 	}
 
-	public  Criteria addToQuery(String fieldName, String value, Criteria criteria) {
-		if(StringUtils.isEmpty(value)) return criteria;
-		
-		if(criteria == null) {
-			criteria = Criteria.where(fieldName).is(value);
-		}else {
-			criteria = criteria.andOperator(Criteria.where(fieldName).is(value));
+	public List<Criteria> createCriteriaList(Map<String, String> queryMap) {
+		List<Criteria> cList = new ArrayList<>();
+		Set<String> keys = queryMap.keySet();        
+		for (String qfield : keys) {
+			cList.add(Criteria.where(qfield).is(queryMap.get(qfield)));
 		}
+		return cList;
+	}
+
+	public  List<Criteria> addToQuery(String fieldName, String value, List<Criteria> criteriaList) {
+		if(StringUtils.isEmpty(value)) return criteriaList;
+		
+		if(criteriaList == null) {
+			criteriaList = new ArrayList<>();
+		}
+		criteriaList.add(Criteria.where(fieldName).is(value));
+		return criteriaList;
+	}
+	
+    public Criteria createCriteria(List<Criteria> cList){
+		Criteria criteria = new Criteria().andOperator(cList.toArray(new Criteria[cList.size()]))  ;
 		return criteria;
 	}
 	
-	public Criteria addToInQuery(String fieldName, List<String> value, Criteria criteria) {
-		if(StringUtils.isEmpty(value)) return criteria;
+    public  List<Criteria> addToInQuery(String fieldName, List<String> value, List<Criteria> criteriaList) {
+		if(value == null || value.size() == 0) return criteriaList;
 		
-		if(criteria == null) {
-			criteria = Criteria.where(fieldName).in(value);
-		}else {
-			criteria = criteria.andOperator(Criteria.where(fieldName).in(value));
+		if(criteriaList == null) {
+			criteriaList = new ArrayList<>();
 		}
-		return criteria;
+		criteriaList.add(Criteria.where(fieldName).in(value));
+		return criteriaList;
 	}
+    
+	public Criteria addToInQuery(String fieldName, List<String> value) {
+		if(StringUtils.isEmpty(value)) return null;
+		
+		return Criteria.where(fieldName).in(value);
+	}
+
 }

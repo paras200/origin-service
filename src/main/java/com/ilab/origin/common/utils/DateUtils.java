@@ -14,8 +14,9 @@ public class DateUtils {
 	    
 	    Calendar  c = Calendar.getInstance();
 	    c.setTime(date);
-	    
-		return c.getTimeInMillis();
+	    long time = c.getTimeInMillis();
+	    System.out.println("start date:" + time);
+		return time;
 	}
 	
 	public static long convertEndDate(String dateStr) throws ParseException {
@@ -25,7 +26,8 @@ public class DateUtils {
 	    
 	    Calendar  c = Calendar.getInstance();
 	    c.setTime(date);
-	    
-		return c.getTimeInMillis();
+	    long time = c.getTimeInMillis();
+	    System.out.println("end date:" + time);
+		return time;
 	}
 }

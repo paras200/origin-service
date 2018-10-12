@@ -22,6 +22,8 @@ public class AppUser {
 	private String mobileNumber;
 	private String location;
 	
+	private Boolean isTempPassword = false;
+
 
 	public String getMobileNumber() {
 		return mobileNumber;
@@ -83,6 +85,14 @@ public class AppUser {
 			return userId;
 		}
 		return firstName + " " + lastName;
+	}
+
+	public Boolean getIsTempPassword() {
+		return isTempPassword;
+	}
+
+	public void setIsTempPassword(Boolean isTempPassword) {
+		this.isTempPassword = isTempPassword;
 	}
 
 	
