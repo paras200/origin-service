@@ -1,5 +1,7 @@
 package com.ilab.origin.certificates.model;
 
+import java.util.Calendar;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
@@ -16,11 +18,20 @@ public class Certificates implements QRData{
 	@Indexed(unique=true)
 	private String qrCode;
 	
+	@Indexed
 	private String instituteName;
+	
+	@Indexed
 	private String courseName;
 	private String studentName;
 	private String dateOfBirth;
 	private String certificateId;
+	
+	private String merchantKey;
+	private String merchantId;
+	
+	private long timeinmilli = Calendar.getInstance().getTimeInMillis();
+	
 	private String qrType = QR_TYPE;
 
 	
@@ -87,7 +98,24 @@ public class Certificates implements QRData{
 	public void setQrType(String qrType) {
 		this.qrType = qrType;
 	}
-	
+	public String getMerchantKey() {
+		return merchantKey;
+	}
+	public void setMerchantKey(String merchantKey) {
+		this.merchantKey = merchantKey;
+	}
+	public String getMerchantId() {
+		return merchantId;
+	}
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
+	}
+	public long getTimeinmilli() {
+		return timeinmilli;
+	}
+	public void setTimeinmilli(long timeinmilli) {
+		this.timeinmilli = timeinmilli;
+	}
 	
 	
 }

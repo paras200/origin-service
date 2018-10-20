@@ -37,6 +37,7 @@ import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.common.utils.DateUtils;
 import com.ilab.origin.common.utils.NumberUtil;
 import com.ilab.origin.common.utils.QRType;
+import com.ilab.origin.common.utils.ValidationUtils;
 import com.ilab.origin.feedback.mode.FeedBackData;
 import com.ilab.origin.feedback.service.FeedbackService;
 import com.ilab.origin.serial.SerialNumberGenerator;
@@ -235,9 +236,7 @@ public class ValidationService {
 	}
 
 	private void validateInputParam(String merchantId) throws OriginException {
-		if(StringUtils.isEmpty(merchantId)) {
-			throw new OriginException("merchantId is mandatory, please provide the same");
-		}
+		ValidationUtils.validateInputParam(merchantId);
 	}
 	
 	@RequestMapping(value="/qrcode/analytics" , method = { RequestMethod.POST ,RequestMethod.GET })
@@ -272,10 +271,14 @@ public class ValidationService {
 		float scannedNoFeed = (totalCount - notScanned) - userFeedBack;
 		
 		Map<String, String> resultMap = new HashMap<>();
-		resultMap.put("Not Scanned", NumberUtil.floatToString((notScanned*100)/totalCount));
-		resultMap.put("Scanned with Feedback", NumberUtil.floatToString((userFeedBack*100)/totalCount));
-		resultMap.put("Scanned- No feedback", NumberUtil.floatToString((scannedNoFeed*100)/totalCount));
+		resultMap.put("Not Scanned" +appendCount(notScanned), NumberUtil.floatToString((notScanned*100)/totalCount));
+		resultMap.put("Scanned with Feedback" +appendCount(userFeedBack), NumberUtil.floatToString((userFeedBack*100)/totalCount));
+		resultMap.put("Scanned- No feedback" +appendCount(scannedNoFeed), NumberUtil.floatToString((scannedNoFeed*100)/totalCount));
 		return resultMap;
+	}
+	
+	private String appendCount(float count) {
+		return "("+NumberUtil.floatToString(count)+")";
 	}
 	
 	private Criteria handleQRGenDateCriteria(Map<String, String> queryMap) throws OriginException {
@@ -379,6 +382,8 @@ public class ValidationService {
 		if(oTrack.getQrcode() != null && oTrack.getQrcode().startsWith(OriginData.READY_ONLY)) {
 			readOnly = true;
 			vd = repository.findByReadQrcode(oTrack.getQrcode());
+			vd.setQrType(OriginData.QR_TYPE_WEB);
+			vd.setProductUrl("http://originscan.com/product/product.html");
 		}else if(oTrack.getQrcode() != null && oTrack.getQrcode().startsWith(Certificates.CERTIFICATES_QR_PREFIX)){
 			return certificatesValidationService.validateCertificates(oTrack.getQrcode());
 		}

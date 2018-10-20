@@ -19,6 +19,8 @@ public class OriginData implements Cloneable, QRData{
 	public static boolean SOLD = true;
 	public static boolean NOT_SOLD = false;
 	public static String READY_ONLY= "RO-";
+	public static String QR_TYPE_WEB = "Webpage";
+
 	
 	@Id
     public String id;
@@ -58,11 +60,13 @@ public class OriginData implements Cloneable, QRData{
 	private int latestScanStatus = OriginStatus.NO_SCAN;
 	private Date firstScanTime ;
 	private boolean includeOriginCheck = true;
+	private String qrType;
 	
 	// Transient field not saved
 	private int statusCode;
 	private String message;
 	private boolean userFeeback = false;
+	private String productUrl;
 	
 	
 	
@@ -228,6 +232,22 @@ public class OriginData implements Cloneable, QRData{
 
 	public void setUserFeeback(boolean userFeeback) {
 		this.userFeeback = userFeeback;
+	}
+
+	public String getQrType() {
+		return qrType;
+	}
+
+	public void setQrType(String qrType) {
+		this.qrType = qrType;
+	}
+	
+	public String getProductUrl() {
+		return productUrl;
+	}
+
+	public void setProductUrl(String productUrl) {
+		this.productUrl = productUrl;
 	}
 
 	public String getDisplayText() {

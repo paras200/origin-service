@@ -103,7 +103,7 @@ public class UserService {
 		return merchantUser;
 	}
 	
-	@RequestMapping(value = "/all-users" , method = { RequestMethod.GET, RequestMethod.POST })
+	@RequestMapping(value = "/user/all-users" , method = { RequestMethod.GET, RequestMethod.POST })
 	public List<User> getAllUsers(){
 		return userRepo.findAll();
 	}

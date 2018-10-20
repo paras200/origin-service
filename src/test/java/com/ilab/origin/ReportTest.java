@@ -29,7 +29,9 @@ public class ReportTest {
 	public void qrReportTest() throws OriginException {
 		Map<String, String> queryMap = new HashMap<>();
 		queryMap.put("merchantId", "1000");
-		queryMap.put("productName", "Ghee");
+		//queryMap.put("productName", "Ghee");
+		queryMap.put("startDate", "10/10/2016");
+		queryMap.put("endDate", "11/10/2018");
 		QueryParamTO paramTo = new QueryParamTO();
 		paramTo.setQueryMap(queryMap);
 		paramTo.setPageNum(1);
