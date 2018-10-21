@@ -161,6 +161,7 @@ public class Merchant {
 			return false;
 		return true;
 	}
+	
 	@Override
 	public String toString() {
 		return "Merchant [id=" + id + ", merchantKey=" + merchantKey + ", name=" + name + ", phoneNumber=" + phoneNumber
