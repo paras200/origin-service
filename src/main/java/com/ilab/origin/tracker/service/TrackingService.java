@@ -1,10 +1,14 @@
 package com.ilab.origin.tracker.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ilab.origin.common.mongo.MongoQueryManager;
+import com.ilab.origin.common.utils.ValidationUtils;
 import com.ilab.origin.serial.SerialNumberGenerator;
 import com.ilab.origin.serial.TimestampSerialization;
 import com.ilab.origin.tracker.error.OriginException;
@@ -39,6 +45,9 @@ public class TrackingService {
 	
 	@Autowired
 	private ShipmentTrackRecorder shipmentTrackRecorder; 
+	
+	@Autowired
+	private MongoQueryManager mongoQueryMgr;
 	
 	private SerialNumberGenerator generator = TimestampSerialization.getInstance();
 
@@ -138,5 +147,24 @@ public class TrackingService {
 			}
 		}
 		return ti;
+	}
+	
+	@RequestMapping(value="/get-latest-shipment-scan" , method = { RequestMethod.GET, RequestMethod.POST })
+	public List<TrackingData> getLatestShipmentScanData(String merchantId) throws OriginException{
+		
+		ValidationUtils.validateInputParam(merchantId);
+
+		Criteria merchantCrt = Criteria.where("merchantId").is(merchantId);
+		Criteria manuFacturerCriteria = Criteria.where("manufacturerId").is(merchantId);
+		List<Criteria> cList = new ArrayList<>();
+		cList.add(merchantCrt);
+		cList.add(manuFacturerCriteria);
+		
+		Criteria criteria = mongoQueryMgr.createORCriteria(cList);
+		Query query = mongoQueryMgr.createQuery(criteria);
+		query.with(new Sort(Sort.Direction.DESC, "creationDate"));
+		List<TrackingData>  result = (List<TrackingData>) mongoQueryMgr.executeQuery(TrackingData.class, query );
+		
+		return result;
 	}
 }

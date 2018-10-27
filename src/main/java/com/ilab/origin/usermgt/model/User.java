@@ -9,6 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class User {
 
+	public static String USER_TYPE_ADMIN ="Admin";
+	
 	@Id
     public String id;
 

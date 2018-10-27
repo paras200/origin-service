@@ -11,10 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.ilab.origin.notification.fcm.FirebaseNotification;
 import com.ilab.origin.tracker.model.TrackingData;
 import com.ilab.origin.tracker.repo.TrackingDataRepository;
 import com.ilab.origin.usermgt.repo.MerchantRepository;
 import com.ilab.origin.usermgt.repo.UserRepository;
+
 
 @Service
 @Scope(scopeName="singleton")
@@ -32,10 +34,13 @@ public class ShipmentTrackRecorder {
 	@Autowired
 	private MerchantRepository merchantRepo;
 	
+	@Autowired
+	private FirebaseNotification notificationService;
+	
 	@PostConstruct
 	public void init(){
 		for(int i=1 ; i<=5 ; i++){
-			ShipmentTrackRecorderThread oTrackThread = new ShipmentTrackRecorderThread(trackerQueue,trackingDataRepo, userRepo,merchantRepo);
+			ShipmentTrackRecorderThread oTrackThread = new ShipmentTrackRecorderThread(trackerQueue,trackingDataRepo, userRepo,merchantRepo,notificationService);
 			oTrackThread.start();
 		}			
 	}

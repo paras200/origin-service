@@ -156,7 +156,8 @@ public class UserService {
 	}
 	
 	@PostMapping("/user/register-merchant-user")	
-	public User registerMerchantUser(@RequestBody User user) throws OriginException{		
+	public User registerMerchantUser(@RequestBody User user) throws OriginException{	
+		user.setUserType(User.USER_TYPE_ADMIN);
 		user.setIsActive(true);
 		return userRepo.save(user);
 	}

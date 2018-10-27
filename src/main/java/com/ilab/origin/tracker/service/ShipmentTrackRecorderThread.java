@@ -5,6 +5,7 @@ import java.util.concurrent.BlockingQueue;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import com.ilab.origin.notification.fcm.NotificationService;
 import com.ilab.origin.tracker.model.ProductOwner;
 import com.ilab.origin.tracker.model.TrackingData;
 import com.ilab.origin.tracker.repo.TrackingDataRepository;
@@ -23,12 +24,14 @@ public class ShipmentTrackRecorderThread extends Thread{
 	
     private UserRepository userRepo;
     private MerchantRepository merchantRepo;
+    private NotificationService notificationService;
 	
-	public ShipmentTrackRecorderThread(BlockingQueue<TrackingData> queue,TrackingDataRepository trackingDataRepo , UserRepository userRepo,  MerchantRepository merchantRepo) {
+	public ShipmentTrackRecorderThread(BlockingQueue<TrackingData> queue,TrackingDataRepository trackingDataRepo , UserRepository userRepo,  MerchantRepository merchantRepo, NotificationService notificationService) {
 		this.queue = queue;
 		this.trackingDataRepo = trackingDataRepo;
 		this.userRepo = userRepo;
 		this.merchantRepo = merchantRepo;
+		this.notificationService = notificationService;
 	}
 	
 	@Override
@@ -52,6 +55,7 @@ public class ShipmentTrackRecorderThread extends Thread{
 						shipTrack.setOwner(owner);
 						// update
 						trackingDataRepo.save(shipTrack);
+						notificationService.sendTrackingUpdate(shipTrack);
 					}
 				}
 				

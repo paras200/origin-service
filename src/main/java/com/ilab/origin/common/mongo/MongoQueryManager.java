@@ -127,6 +127,11 @@ private static Log log = LogFactory.getLog(MongoQueryManager.class.getName());
 		Criteria criteria = new Criteria().andOperator(cList.toArray(new Criteria[cList.size()]))  ;
 		return criteria;
 	}
+    
+    public Criteria createORCriteria(List<Criteria> cList){
+		Criteria criteria = new Criteria().orOperator(cList.toArray(new Criteria[cList.size()]))  ;
+		return criteria;
+	}
 	
     public  List<Criteria> addToInQuery(String fieldName, List<String> value, List<Criteria> criteriaList) {
 		if(value == null || value.size() == 0) return criteriaList;
