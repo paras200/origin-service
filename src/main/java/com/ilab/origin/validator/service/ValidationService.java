@@ -385,7 +385,7 @@ public class ValidationService {
 			vd.setQrType(OriginData.QR_TYPE_WEB);
 			vd.setProductUrl("http://originscan.com/product/product.html");
 		}else if(oTrack.getQrcode() != null && oTrack.getQrcode().startsWith(Certificates.CERTIFICATES_QR_PREFIX)){
-			return certificatesValidationService.validateCertificates(oTrack.getQrcode());
+			return certificatesValidationService.validateCertificates(oTrack);
 		}
 		else {
 			vd = repository.findByQrCode(oTrack.getQrcode());

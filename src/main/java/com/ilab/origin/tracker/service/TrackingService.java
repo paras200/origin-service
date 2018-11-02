@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.common.utils.ValidationUtils;
+import com.ilab.origin.notification.fcm.FirebaseNotification;
 import com.ilab.origin.serial.SerialNumberGenerator;
 import com.ilab.origin.serial.TimestampSerialization;
 import com.ilab.origin.tracker.error.OriginException;
@@ -48,6 +49,9 @@ public class TrackingService {
 	
 	@Autowired
 	private MongoQueryManager mongoQueryMgr;
+	
+	@Autowired
+	private FirebaseNotification firebaseNotification; 
 	
 	private SerialNumberGenerator generator = TimestampSerialization.getInstance();
 
@@ -150,7 +154,7 @@ public class TrackingService {
 	}
 	
 	@RequestMapping(value="/get-latest-shipment-scan" , method = { RequestMethod.GET, RequestMethod.POST })
-	public List<TrackingData> getLatestShipmentScanData(String merchantId) throws OriginException{
+	public List<TrackingData> getLatestShipmentScanData(@RequestParam(value="merchantId") String merchantId) throws OriginException{
 		
 		ValidationUtils.validateInputParam(merchantId);
 
@@ -166,5 +170,21 @@ public class TrackingService {
 		List<TrackingData>  result = (List<TrackingData>) mongoQueryMgr.executeQuery(TrackingData.class, query );
 		
 		return result;
+	}
+	
+	@PostMapping("/subscribe-topic")
+	public int subscribeToTopic(@RequestParam(value="registrationToken") List<String> registrationToken , @RequestParam(value="topicName") String topicName){
+		return firebaseNotification.subscribeToTopic(registrationToken, topicName);
+	}
+	
+	@PostMapping("/un-subscribe-topic")
+	public int unsubscribeToTopic(@RequestParam(value="registrationToken") List<String> registrationToken , @RequestParam(value="topicName") String topicName){
+		return firebaseNotification.unsubscribeToTopic(registrationToken, topicName);
+	}
+	
+	@RequestMapping(value="/get-topic-name" , method = { RequestMethod.GET, RequestMethod.POST })
+	public String getTopicName(@RequestParam(value="userId") String userId, @RequestParam(value="merchantId") String merchantId) throws OriginException{
+		
+		return firebaseNotification.getTopicName(merchantId);
 	}
 }

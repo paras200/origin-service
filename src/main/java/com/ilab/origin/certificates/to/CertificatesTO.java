@@ -6,6 +6,9 @@ public class CertificatesTO {
 
 	private String instituteName;
 	private String courseName;
+	private String universityName;
+	private String merchantId;
+	private String merchantKey;
 	
 	private List<Student> students;
 
@@ -32,6 +35,28 @@ public class CertificatesTO {
 	public void setStudents(List<Student> students) {
 		this.students = students;
 	}
-	
-	
+
+	public String getUniversityName() {
+		return universityName;
+	}
+
+	public void setUniversityName(String universityName) {
+		this.universityName = universityName;
+	}
+
+	public String getMerchantId() {
+		return merchantId;
+	}
+
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
+	}
+
+	public String getMerchantKey() {
+		return merchantKey;
+	}
+
+	public void setMerchantKey(String merchantKey) {
+		this.merchantKey = merchantKey;
+	}
 }

@@ -2,7 +2,7 @@ package com.ilab.origin.certificates.service;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ilab.origin.certificates.model.CertificateTrack;
 import com.ilab.origin.certificates.model.Certificates;
 import com.ilab.origin.certificates.repo.CertificatesRepo;
 import com.ilab.origin.certificates.to.BulkCertificatesTO;
@@ -32,6 +33,7 @@ import com.ilab.origin.serial.SerialNumberGenerator;
 import com.ilab.origin.serial.UUIDSerialization;
 import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.validator.model.OriginStatus;
+import com.ilab.origin.validator.model.OriginTrack;
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -48,6 +50,8 @@ public class CertificatesValidationService {
 	@Autowired
 	private MongoQueryManager mongoQueryMgr;
 	
+	private CertificateTrackRecorder certificatesRecorder;
+	
 	@PostMapping("/generate-qrcode")	
 	public List<Certificates> saveAllQRCode(@RequestBody CertificatesTO inputData) throws OriginException{		
 		
@@ -60,6 +64,9 @@ public class CertificatesValidationService {
 			Certificates certificates = new Certificates();
 			certificates.setCourseName(inputData.getCourseName());
 			certificates.setInstituteName(inputData.getInstituteName());
+			certificates.setUniversityName(inputData.getUniversityName());
+			certificates.setMerchantId(inputData.getMerchantId());
+			certificates.setMerchantKey(inputData.getMerchantKey());
 			
 			certificates.setStudentName(student.getStudentName());
 			certificates.setDateOfBirth(student.getDateOfBirth());
@@ -77,18 +84,24 @@ public class CertificatesValidationService {
 	public List<Certificates> saveAllQRCode(@RequestBody BulkCertificatesTO bulkCertificatesTO) throws OriginException{		
 		
 		ValidationUtils.validateInputParam(bulkCertificatesTO.getMerchantId());
-		List<String> dataList = bulkCertificatesTO.getData();
-		List<String> headerList = Arrays.asList(bulkCertificatesTO.getHeader().split(","));
+		List<Student> dataList = bulkCertificatesTO.getData();
+		List<String> headerList = bulkCertificatesTO.getHeader();//Arrays.asList(bulkCertificatesTO.getHeader().split(","));
 		
 		List<Certificates> certList = new ArrayList<>();
 		
-		for (String text : dataList) {
-			List<String> studentData = Arrays.asList(text.split(","));
+		for (Student student : dataList) {
+			//List<String> studentData = Arrays.asList(text.split(","));
 			Certificates certificates = new Certificates();
 			certificates.setMerchantId(bulkCertificatesTO.getMerchantId());
 			certificates.setMerchantKey(bulkCertificatesTO.getMerchantKey());
+			certificates.setUniversityName(bulkCertificatesTO.getUniversityName());
+			
+			certificates.setStudentName(student.getStudentName());
+			certificates.setDateOfBirth(student.getDateOfBirth());
+			certificates.setCertificateId(student.getCertificateId());
+			certificates.setInstituteName(student.getInstituteName());
 			//int index = 0;
-			for (int index =0; index < headerList.size() ; index++) {
+			/*for (int index =0; index < headerList.size() ; index++) {
 				if("CourseName".equalsIgnoreCase(headerList.get(index))) {
 					certificates.setCourseName(studentData.get(index));
 				}else if("InstituteName".equalsIgnoreCase(headerList.get(index))) {
@@ -100,7 +113,7 @@ public class CertificatesValidationService {
 				}else if("CertificateId".equalsIgnoreCase(headerList.get(index))) {
 					certificates.setCertificateId(studentData.get(index));
 				}
-			}
+			}*/
 			
 			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX + slgenerator.getSequenceNumber());
 			certList.add(certificates);
@@ -110,7 +123,9 @@ public class CertificatesValidationService {
 		List<Certificates> cList = certRepo.save(certList);
 		return cList;
 	}
-	public Certificates validateCertificates(String qrcode) {
+	
+	public Certificates validateCertificates(OriginTrack originTrack) {
+		String qrcode = originTrack.getQrcode();
 		log.info("Certificates Validation is in progress...");
 		Certificates certificate =  certRepo.findByQrCode(qrcode);
 		if(certificate != null) {
@@ -118,6 +133,9 @@ public class CertificatesValidationService {
 			StringBuilder sb = new StringBuilder("The Certificate is issued by " + certificate.getInstituteName() +". ");
 			sb.append("Please validate the Certificates details as below.");
 			certificate.setMessage(sb.toString());
+			
+			CertificateTrack certificateTrack = populateCertificatesTrack(originTrack , certificate);
+			certificatesRecorder.asyncSave(certificateTrack);
 		}else {
 			certificate = new Certificates();
 			certificate.setStatusCode(OriginStatus.RED);
@@ -127,6 +145,21 @@ public class CertificatesValidationService {
 		return certificate;
 	}
 	
+	private CertificateTrack populateCertificatesTrack(OriginTrack originTrack, Certificates certificate) {
+		CertificateTrack cTrack = new CertificateTrack();
+		cTrack.setComment(originTrack.getComment());
+		cTrack.setQrcode(originTrack.getQrcode());
+		cTrack.setLocation(originTrack.getLocation());
+		cTrack.setScanTime(new Date());
+		cTrack.setUserId(originTrack.getUserId());
+		
+		cTrack.setCourseName(certificate.getCourseName());
+		cTrack.setInstitutesName(certificate.getInstituteName());
+		cTrack.setUniversityName(certificate.getUniversityName());
+		
+		return cTrack;
+	}
+
 	@RequestMapping(value="/generic-query" , method = { RequestMethod.POST })
 	public List<Certificates>  getValidationData(@RequestBody QueryParamTO paramTO) throws OriginException{
 		Map<String,String> queryMap = paramTO.getQueryMap();

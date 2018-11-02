@@ -5,24 +5,30 @@ import java.util.List;
 public class BulkCertificatesTO {
 
 	private String fileId;
-	private String header;
-	private List<String> data;
+	private List<String> header;
+	private List<Student> data;
 	private String merchantKey;
 	private String merchantId;
+	private String universityName;
 
 	
-	public String getHeader() {
+	public List<String> getHeader() {
 		return header;
 	}
-	public void setHeader(String header) {
+	public void setHeader(List<String> header) {
 		this.header = header;
 	}
-	
-	public List<String> getData() {
+	public List<Student> getData() {
 		return data;
 	}
-	public void setData(List<String> data) {
+	public void setData(List<Student> data) {
 		this.data = data;
+	}
+	public String getUniversityName() {
+		return universityName;
+	}
+	public void setUniversityName(String universityName) {
+		this.universityName = universityName;
 	}
 	public String getMerchantKey() {
 		return merchantKey;

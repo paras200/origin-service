@@ -7,6 +7,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.ilab.origin.common.model.BusinessVarticals;
+
 @EntityScan
 @Document
 public class Merchant {
@@ -31,6 +33,8 @@ public class Merchant {
 	
 	private List<Product> productList;
 	
+	@Indexed
+	private String businessVertical = BusinessVarticals.General.toString();
 	
 	public String getMerchantKey() {
 		return merchantKey;
@@ -90,6 +94,14 @@ public class Merchant {
 	public void setProductList(List<Product> productList) {
 		this.productList = productList;
 	}
+	
+	public String getBusinessVertical() {
+		return businessVertical;
+	}
+	public void setBusinessVertical(String businessVertical) {
+		this.businessVertical = businessVertical;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

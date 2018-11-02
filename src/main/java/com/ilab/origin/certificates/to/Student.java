@@ -5,6 +5,7 @@ public class Student {
 	private String studentName;
 	private String dateOfBirth;
 	private String certificateId;
+	private String instituteName;
 	
 	public String getStudentName() {
 		return studentName;
@@ -24,6 +25,12 @@ public class Student {
 	public void setCertificateId(String certificateId) {
 		this.certificateId = certificateId;
 	}
+	public String getInstituteName() {
+		return instituteName;
+	}
+	public void setInstituteName(String instituteName) {
+		this.instituteName = instituteName;
+	}
 	
-	
+
 }

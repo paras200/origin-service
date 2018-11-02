@@ -21,6 +21,9 @@ public class Certificates implements QRData{
 	@Indexed
 	private String instituteName;
 	
+	@Indexed()
+	private String universityName;
+	
 	@Indexed
 	private String courseName;
 	private String studentName;
@@ -115,6 +118,12 @@ public class Certificates implements QRData{
 	}
 	public void setTimeinmilli(long timeinmilli) {
 		this.timeinmilli = timeinmilli;
+	}
+	public String getUniversityName() {
+		return universityName;
+	}
+	public void setUniversityName(String universityName) {
+		this.universityName = universityName;
 	}
 	
 	

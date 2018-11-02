@@ -23,7 +23,8 @@ public class AppUser {
 	private String location;
 	
 	private Boolean isTempPassword = false;
-
+	private String userType;
+	private String businessName;
 
 	public String getMobileNumber() {
 		return mobileNumber;
@@ -95,5 +96,19 @@ public class AppUser {
 		this.isTempPassword = isTempPassword;
 	}
 
-	
+	public String getUserType() {
+		return userType;
+	}
+
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+
+	public String getBusinessName() {
+		return businessName;
+	}
+
+	public void setBusinessName(String businessName) {
+		this.businessName = businessName;
+	}
 }

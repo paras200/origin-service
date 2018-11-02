@@ -3,6 +3,7 @@ package com.ilab.origin.notification.fcm;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 
 import javax.annotation.PostConstruct;
 
@@ -19,6 +20,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.TopicManagementResponse;
 import com.ilab.origin.tracker.model.TrackingData;
 
 @Service
@@ -60,7 +62,7 @@ public class FirebaseNotification implements NotificationService {
 	
 	public void sendTrackingUpdate(TrackingData trackingData) {
 		// The topic name can be optionally prefixed with "/topics/".
-		String topic = "shipment-" + trackingData.getMerchantId();
+		String topic = "origin-test-topic";//"shipment-" + trackingData.getMerchantId();
 
 		Notification notification = new Notification("Shipment Update", "Shipment with LotNumber : " + trackingData.getLotNumber() + "  is received by " + trackingData.getOwner().getPersonName());
 		// See documentation on defining a message payload.
@@ -86,5 +88,38 @@ public class FirebaseNotification implements NotificationService {
 			log.error("firebase message sending failed for " + trackingData , e);
 		}
 		
+	}
+	
+	public int subscribeToTopic(List<String> registrationToken, String topicName) {
+		try {
+			TopicManagementResponse managementResponse = FirebaseMessaging.getInstance().subscribeToTopic(registrationToken, topicName);
+			// Response is a message ID string.
+			log.info("Successfully subscribed to topic : " + topicName + " with registration id :" +registrationToken);
+			return managementResponse.getSuccessCount();
+			
+		} catch (FirebaseMessagingException e) {
+			log.error("Failed to subscribed to topic : " + topicName + " with registration id :" +registrationToken);
+		}
+		return -1;
+	}
+	
+	public int unsubscribeToTopic(List<String> registrationToken, String topicName) {
+
+		try {
+			//response = FirebaseMessaging.getInstance().send(message, dryRun);
+			TopicManagementResponse managementResponse = FirebaseMessaging.getInstance().unsubscribeFromTopic(registrationToken, topicName);
+			// Response is a message ID string.
+			log.info("Successfully un-subscribed to topic : " + topicName + " with registration id :" +registrationToken);
+			return managementResponse.getSuccessCount();
+			
+		} catch (FirebaseMessagingException e) {
+			log.error("Failed to un-subscribed to topic : " + topicName + " with registration id :" +registrationToken);
+		}
+		return -1;
+	}
+
+	public String getTopicName(String merchantId) {
+		String topic = "origin-test-topic";
+		return topic;
 	}
 }
