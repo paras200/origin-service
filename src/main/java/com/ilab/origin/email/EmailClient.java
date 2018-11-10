@@ -48,7 +48,7 @@ public class EmailClient {
 			eb.setParamMap(paramMap);
 			eb.getToList().add("coinxlab@gmail.com");
 			log.info("sending email .... " + eb);
-			restTemplate.postForEntity(customEmailUrl, eb, String.class);
+			restTemplate.postForEntity(templateBasedUrl, eb, String.class);
 		} catch (Exception ex) {
 			log.error("Error sending email ", ex);
 		}
