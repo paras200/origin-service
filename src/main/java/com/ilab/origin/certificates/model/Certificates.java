@@ -2,6 +2,8 @@ package com.ilab.origin.certificates.model;
 
 import java.util.Calendar;
 
+import javax.validation.constraints.NotNull;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
@@ -21,23 +23,30 @@ public class Certificates implements QRData{
 	@Indexed
 	private String instituteName;
 	
+    @NotNull(message = "universityName must not be null")
 	@Indexed()
 	private String universityName;
 	
+    @NotNull(message = "courseName must not be null")
 	@Indexed
 	private String courseName;
+    
+    @NotNull(message = "studentName must not be null")
 	private String studentName;
+    
 	private String dateOfBirth;
 	private String certificateId;
 	
 	private String merchantKey;
+	
+	@Indexed
 	private String merchantId;
 	
+	@Indexed
 	private long timeinmilli = Calendar.getInstance().getTimeInMillis();
 	
 	private String qrType = QR_TYPE;
-
-	
+	private String fileId;	
 	
 	// Transient field not saved
 	private int statusCode;
@@ -124,6 +133,17 @@ public class Certificates implements QRData{
 	}
 	public void setUniversityName(String universityName) {
 		this.universityName = universityName;
+	}
+	public String getFileId() {
+		return fileId;
+	}
+	public void setFileId(String fileId) {
+		this.fileId = fileId;
+	}
+	@Override
+	public String toString() {
+		return "Certificates [qrCode=" + qrCode + ", universityName=" + universityName + ", studentName=" + studentName
+				+ "]";
 	}
 	
 	

@@ -2,10 +2,14 @@ package com.ilab.origin.certificates.model;
 
 import java.util.Date;
 
+import javax.validation.constraints.NotNull;
+
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.ilab.origin.mobileapp.model.AppUser;
 import com.ilab.origin.usermgt.model.Location;
 
 @EntityScan
@@ -16,14 +20,21 @@ public class CertificateTrack {
     public String id;
 	
 	private String qrcode;
+	
+	@Indexed
 	private String userId;
+	private String userType = AppUser.USER_TYPE_INDIVIDUAL;
 	private int statusCode;
 	private String comment;
 	private Location location;
 	private Date scanTime;
 	private String institutesName;
 	private String universityName;
+	
+	@NotNull(message = "courseName must not be null")
 	private String courseName;
+	
+	private String merchantId;
 	
 	public String getQrcode() {
 		return qrcode;
@@ -81,6 +92,18 @@ public class CertificateTrack {
 	}
 	public String getId() {
 		return id;
+	}
+	public String getUserType() {
+		return userType;
+	}
+	public void setUserType(String userType) {
+		this.userType = userType;
+	}
+	public String getMerchantId() {
+		return merchantId;
+	}
+	public void setMerchantId(String merchantId) {
+		this.merchantId = merchantId;
 	}
 	
 }

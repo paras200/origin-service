@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.ilab.origin.usermgt.model.Location;
@@ -16,6 +17,8 @@ public class OriginTrack {
     public String id;
 	
 	private String qrcode;
+	
+	@Indexed
 	private String userId;
 	private int statusCode;
 	private String comment;
@@ -24,6 +27,7 @@ public class OriginTrack {
 	private String productName;
 	private String manufacturerName;
 	private String merchantKey;
+	private String userType;
 	
 	
 	public String getQrcode() {
@@ -84,6 +88,13 @@ public class OriginTrack {
 	}
 	public void setMerchantKey(String merchantKey) {
 		this.merchantKey = merchantKey;
+	}
+	
+	public String getUserType() {
+		return userType;
+	}
+	public void setUserType(String userType) {
+		this.userType = userType;
 	}
 	@Override
 	public String toString() {

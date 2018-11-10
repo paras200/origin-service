@@ -20,6 +20,11 @@ public class NumberUtil {
 		return output;
 	}
 	
+	public static String calculatePercentage(long value, long total) {
+		if(total <=0) return "0";
+		return floatToString((value * 100)/ total);
+	}
+	
 	public static void main(String[] args) {
 		Double amount = 10d;
 		

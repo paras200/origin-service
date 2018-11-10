@@ -50,6 +50,7 @@ public class CertificatesValidationService {
 	@Autowired
 	private MongoQueryManager mongoQueryMgr;
 	
+	@Autowired
 	private CertificateTrackRecorder certificatesRecorder;
 	
 	@PostMapping("/generate-qrcode")	
@@ -73,6 +74,7 @@ public class CertificatesValidationService {
 			certificates.setCertificateId(student.getCertificateId());
 			
 			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX + slgenerator.getSequenceNumber());
+			System.out.println("qr code : " + certificates.getQrCode());
 			
 			certList.add(certificates);
 		}
@@ -85,7 +87,7 @@ public class CertificatesValidationService {
 		
 		ValidationUtils.validateInputParam(bulkCertificatesTO.getMerchantId());
 		List<Student> dataList = bulkCertificatesTO.getData();
-		List<String> headerList = bulkCertificatesTO.getHeader();//Arrays.asList(bulkCertificatesTO.getHeader().split(","));
+		//List<String> headerList = bulkCertificatesTO.getHeader();//Arrays.asList(bulkCertificatesTO.getHeader().split(","));
 		
 		List<Certificates> certList = new ArrayList<>();
 		
@@ -95,11 +97,13 @@ public class CertificatesValidationService {
 			certificates.setMerchantId(bulkCertificatesTO.getMerchantId());
 			certificates.setMerchantKey(bulkCertificatesTO.getMerchantKey());
 			certificates.setUniversityName(bulkCertificatesTO.getUniversityName());
+			certificates.setFileId(bulkCertificatesTO.getFileId());
 			
 			certificates.setStudentName(student.getStudentName());
 			certificates.setDateOfBirth(student.getDateOfBirth());
 			certificates.setCertificateId(student.getCertificateId());
 			certificates.setInstituteName(student.getInstituteName());
+			
 			//int index = 0;
 			/*for (int index =0; index < headerList.size() ; index++) {
 				if("CourseName".equalsIgnoreCase(headerList.get(index))) {
@@ -156,7 +160,11 @@ public class CertificatesValidationService {
 		cTrack.setCourseName(certificate.getCourseName());
 		cTrack.setInstitutesName(certificate.getInstituteName());
 		cTrack.setUniversityName(certificate.getUniversityName());
+		cTrack.setMerchantId(certificate.getMerchantId());
 		
+		if(!(StringUtils.isEmpty(originTrack.getUserType()))) {
+			cTrack.setUserType(originTrack.getUserType());
+		}
 		return cTrack;
 	}
 

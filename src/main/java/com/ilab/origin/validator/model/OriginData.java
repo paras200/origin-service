@@ -37,10 +37,14 @@ public class OriginData implements Cloneable, QRData{
 	
 	@Indexed
 	private String merchantId;
+	
+	@Indexed
 	private String merchantKey;
 	private String manufacturerName;
 	
 	private String gstn;
+	
+	@Indexed
 	private String expiryDate;
 	
 	@Indexed
@@ -53,6 +57,7 @@ public class OriginData implements Cloneable, QRData{
 	
 	private Location location;
 	
+	@Indexed
 	private long timeinmilli = Calendar.getInstance().getTimeInMillis();
 	private Date latestScanTime = new Date();
 	

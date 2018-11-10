@@ -62,7 +62,7 @@ public class FirebaseNotification implements NotificationService {
 	
 	public void sendTrackingUpdate(TrackingData trackingData) {
 		// The topic name can be optionally prefixed with "/topics/".
-		String topic = "origin-test-topic";//"shipment-" + trackingData.getMerchantId();
+		String topic = getTopicName(trackingData.getMerchantId());//"shipment-" + trackingData.getMerchantId();
 
 		Notification notification = new Notification("Shipment Update", "Shipment with LotNumber : " + trackingData.getLotNumber() + "  is received by " + trackingData.getOwner().getPersonName());
 		// See documentation on defining a message payload.
@@ -119,7 +119,7 @@ public class FirebaseNotification implements NotificationService {
 	}
 
 	public String getTopicName(String merchantId) {
-		String topic = "origin-test-topic";
+		String topic = "origin-topic-" + merchantId;
 		return topic;
 	}
 }

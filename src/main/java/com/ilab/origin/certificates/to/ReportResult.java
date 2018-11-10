@@ -1,5 +1,6 @@
 package com.ilab.origin.certificates.to;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -12,9 +13,10 @@ public class ReportResult {
 	private Map<String, String> resultMap;
 	
 	// bar chart
-	private List<String> labels;
-	private ChartData chartData;
-	
+	private List<List<String>> data = new ArrayList<List<String>>();
+	/*private List<String> labels;
+	private List<ChartData> chartDataList;
+	*/
 	public String getStatus() {
 		return status;
 	}
@@ -34,17 +36,18 @@ public class ReportResult {
 	public void setResultMap(Map<String, String> resultMap) {
 		this.resultMap = resultMap;
 	}
-	public List<String> getLabels() {
-		return labels;
+	public List<List<String>> getData() {
+		return data;
 	}
-	public void setLabels(List<String> labels) {
-		this.labels = labels;
+	public void setData(List<List<String>> data) {
+		this.data = data;
 	}
-	public ChartData getChartData() {
-		return chartData;
+	@Override
+	public String toString() {
+		return "ReportResult [status=" + status + ", reportName=" + reportName + ", resultMap=" + resultMap + ", data="
+				+ data + "]";
 	}
-	public void setChartData(ChartData chartData) {
-		this.chartData = chartData;
-	}
+	
+	
 	
 }

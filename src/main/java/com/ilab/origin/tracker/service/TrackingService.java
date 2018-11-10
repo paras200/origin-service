@@ -17,8 +17,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ilab.origin.common.model.StringResponse;
 import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.common.utils.ValidationUtils;
 import com.ilab.origin.notification.fcm.FirebaseNotification;
@@ -183,8 +185,8 @@ public class TrackingService {
 	}
 	
 	@RequestMapping(value="/get-topic-name" , method = { RequestMethod.GET, RequestMethod.POST })
-	public String getTopicName(@RequestParam(value="userId") String userId, @RequestParam(value="merchantId") String merchantId) throws OriginException{
+	public StringResponse getTopicName(@RequestParam(value="userId") String userId, @RequestParam(value="merchantId") String merchantId) throws OriginException{
 		
-		return firebaseNotification.getTopicName(merchantId);
+		return new StringResponse(firebaseNotification.getTopicName(merchantId)) ;
 	}
 }

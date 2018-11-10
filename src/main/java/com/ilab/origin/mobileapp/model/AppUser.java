@@ -8,6 +8,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EntityScan
 @Document
 public class AppUser {
+	
+	public static String USER_TYPE_INDIVIDUAL ="INDIVIDUAL";
+	public static String USER_TYPE_BUSINESS ="BUSINESS";
 
 	@Id
     public String id;
@@ -23,7 +26,7 @@ public class AppUser {
 	private String location;
 	
 	private Boolean isTempPassword = false;
-	private String userType;
+	private String userType = USER_TYPE_INDIVIDUAL;
 	private String businessName;
 
 	public String getMobileNumber() {

@@ -41,13 +41,10 @@ public class TestDataGenerator {
 	
 	@PostConstruct
 	public void init() {
-		locationList.add("Patna");
 		locationList.add("Hyde");
 		locationList.add("Banglore");
 		locationList.add("Pune");
 		locationList.add("Delhi");
-		locationList.add("Punjab");
-		locationList.add("Kolkatta");
 		locationList.add("Mumbai");
 		
 		
@@ -120,7 +117,7 @@ public class TestDataGenerator {
 		fd.setUserName(userDArr[1]);
 	}
 	
-	private static int getRandomNumberInRange(int min, int max) {
+	public static int getRandomNumberInRange(int min, int max) {
 
 		if (min >= max) {
 			throw new IllegalArgumentException("max must be greater than min");

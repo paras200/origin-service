@@ -78,6 +78,7 @@ public class UserService {
 	@PostMapping("/user/register-newuser")	
 	public User registerNewUser(@RequestBody User user) throws OriginException{		
 		log.info(" saving user :" + user);
+		user.setUserType(User.USER_TYPE_ADMIN);
 		User oldUser = userRepo.findByUserId(user.getUserId());
 		if(oldUser != null) {
 			throw new OriginException(Result.STATUS_FAILUER + " User id already exits");
@@ -157,8 +158,15 @@ public class UserService {
 	
 	@PostMapping("/user/register-merchant-user")	
 	public User registerMerchantUser(@RequestBody User user) throws OriginException{	
+		if(StringUtils.isEmpty(user.getMerchantId())) {
+			throw new OriginException("merchant Id can't be empty");
+		}
 		user.setUserType(User.USER_TYPE_ADMIN);
 		user.setIsActive(true);
+		User oldUser = userRepo.findByUserId(user.getUserId());
+		if(oldUser != null) {
+			throw new OriginException(Result.STATUS_FAILUER + " User id already exits");
+		}
 		return userRepo.save(user);
 	}
 	
