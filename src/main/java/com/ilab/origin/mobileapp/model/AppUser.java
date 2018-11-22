@@ -88,6 +88,8 @@ public class AppUser {
 		if(firstName == null && lastName == null) {
 			return userId;
 		}
+		if(lastName == null) return firstName;
+		
 		return firstName + " " + lastName;
 	}
 

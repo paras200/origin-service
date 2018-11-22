@@ -47,4 +47,11 @@ public class AdminService {
 		certDataGenerator.generateTestData(institutesName, userScanPercentage, businessScanPercentage, generateQR, merchantId);
 		return new Result();
 	}
+	
+	@RequestMapping(value="/add-test-users" , method = { RequestMethod.GET, RequestMethod.POST })
+	public Result   addTestUsers() throws OriginException{
+		
+		certDataGenerator.addTestUser();
+		return new Result();
+	}
 }

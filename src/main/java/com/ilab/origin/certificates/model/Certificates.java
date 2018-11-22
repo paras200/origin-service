@@ -1,6 +1,7 @@
 package com.ilab.origin.certificates.model;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
@@ -8,6 +9,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import com.ilab.origin.common.model.QRData;
+import com.ilab.origin.validator.model.OriginStatus;
 
 public class Certificates implements QRData{
 
@@ -42,6 +44,8 @@ public class Certificates implements QRData{
 	@Indexed
 	private String merchantId;
 	
+	private Date certIssueDate;
+	
 	@Indexed
 	private long timeinmilli = Calendar.getInstance().getTimeInMillis();
 	
@@ -51,7 +55,9 @@ public class Certificates implements QRData{
 	// Transient field not saved
 	private int statusCode;
 	private String message;
-		
+	private int latestScanStatus = OriginStatus.NO_SCAN;
+	private boolean userFeeback = false;
+	
 	
 	public String getQrCode() {
 		return qrCode;
@@ -77,6 +83,7 @@ public class Certificates implements QRData{
 	public void setStudentName(String studentName) {
 		this.studentName = studentName;
 	}
+	
 	public String getDateOfBirth() {
 		return dateOfBirth;
 	}
@@ -139,6 +146,27 @@ public class Certificates implements QRData{
 	}
 	public void setFileId(String fileId) {
 		this.fileId = fileId;
+	}
+	
+	public Date getCertIssueDate() {
+		return certIssueDate;
+	}
+	public void setCertIssueDate(Date certIssueDate) {
+		this.certIssueDate = certIssueDate;
+	}
+	
+	public int getLatestScanStatus() {
+		return latestScanStatus;
+	}
+	public void setLatestScanStatus(int latestScanStatus) {
+		this.latestScanStatus = latestScanStatus;
+	}
+	
+	public boolean isUserFeeback() {
+		return userFeeback;
+	}
+	public void setUserFeeback(boolean userFeeback) {
+		this.userFeeback = userFeeback;
 	}
 	@Override
 	public String toString() {

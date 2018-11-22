@@ -133,6 +133,14 @@ public class TrackingData implements Comparable<TrackingData>{
 		}
 		return 0;
 	}
+	@Override
+	public String toString() {
+		return "TrackingData [id=" + id + ", qrcode=" + qrcode + ", lotNumber=" + lotNumber + ", productName="
+				+ productName + ", manufacturerId=" + manufacturerId + ", manufacturerName=" + manufacturerName
+				+ ", merchantId=" + merchantId + ", merchantName=" + merchantName + ", userId=" + userId
+				+ ", previousOwner=" + previousOwner + ", owner=" + owner + ", creationDate=" + creationDate
+				+ ", status=" + status + ", comments=" + comments + ", location=" + location + "]";
+	}
 	
 	
 }

@@ -120,18 +120,19 @@ public class TrackingService {
 //		if(trackData == null) {
 //			throw new OriginException("qrcode seems to be invalid, its not recognized by the system");
 //		}
-		
-		td = trackingDataRepo.save(td);
-		
-		shipmentTrackRecorder.asyncUpdate(td);
-		
-		log.info("tracking data is updated with location, updated record : " + td);
 		TransactionInfo ti = tiRepo.findByQrcode(td.getQrcode());
 		if(ti == null) {
 			ti = new TransactionInfo();
 			ti.setQrcode(td.getQrcode());
 			ti.setStatusCode(-1);
 		}
+		td.setLotNumber(ti.getLotNumber());
+		td.setMerchantId(ti.getMerchantId());
+		td.setProductName(ti.getProductName());
+		td = trackingDataRepo.save(td);
+		
+		log.info("tracking data is updated with location, updated record : " + td);
+		shipmentTrackRecorder.asyncUpdate(td);
 		return ti;
 	}
 	
@@ -176,11 +177,13 @@ public class TrackingService {
 	
 	@PostMapping("/subscribe-topic")
 	public int subscribeToTopic(@RequestParam(value="registrationToken") List<String> registrationToken , @RequestParam(value="topicName") String topicName){
+		log.info("subscribe-topic : registrationToken " + registrationToken + "... topic : " + topicName);
 		return firebaseNotification.subscribeToTopic(registrationToken, topicName);
 	}
 	
 	@PostMapping("/un-subscribe-topic")
 	public int unsubscribeToTopic(@RequestParam(value="registrationToken") List<String> registrationToken , @RequestParam(value="topicName") String topicName){
+		log.info("un-subscribe-topic : registrationToken " + registrationToken + "... topic : " + topicName);
 		return firebaseNotification.unsubscribeToTopic(registrationToken, topicName);
 	}
 	

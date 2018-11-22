@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
@@ -58,10 +59,15 @@ public class CertificatesAnalyticsService {
 		ValidationUtils.validateInputParam(merchantId);
 		
 		Criteria qrDateCriteria = handleQRGenDateCriteria(queryMap);
+		Criteria latestScanCritera =  handelLatestScanStatus(queryMap);
 		
 		List<Criteria> criteriaList = mongoQueryMgr.createCriteriaList(queryMap);
 		if(criteriaList != null && qrDateCriteria != null) {
 			criteriaList.add(qrDateCriteria);
+		}
+		addCourseNameCritera(criteriaList, queryMap);
+		if(latestScanCritera != null) {
+			criteriaList.add(latestScanCritera);
 		}
 		
 		Query query = mongoQueryMgr.createQuery(criteriaList);
@@ -105,6 +111,7 @@ public class CertificatesAnalyticsService {
 		if(criteriaList != null && qrDateCriteria != null) {
 			criteriaList.add(qrDateCriteria);
 		}
+		addCourseNameCritera(criteriaList, queryMap);
 		
 		Query query = mongoQueryMgr.createQuery(criteriaList);
 		query.fields().include("qrCode");
@@ -159,6 +166,7 @@ public class CertificatesAnalyticsService {
 		if(criteriaList != null && qrDateCriteria != null) {
 			criteriaList.add(qrDateCriteria);
 		}
+		addCourseNameCritera(criteriaList, queryMap);
 		
 		Query query = mongoQueryMgr.createQuery(criteriaList);
 		query.fields().include("qrCode");
@@ -232,6 +240,13 @@ public class CertificatesAnalyticsService {
 		return rr;
 	}
 	
+	private void addCourseNameCritera(List<Criteria> criteriaList, Map<String, String> queryMap) {
+		if(!(queryMap.containsKey("courseName"))) {
+			Criteria cr = Criteria.where("courseName").ne(null);
+			criteriaList.add(cr);
+		}
+	}
+
 	private int getScannedCount(List<Certificates> result) {
 		List<String> qrList = result.stream().map(Certificates::getQrCode).collect(Collectors.toList());
 		List<CertificateTrack> trackResult = getCertificatesTrackInfo(qrList);
@@ -252,6 +267,16 @@ public class CertificatesAnalyticsService {
 		return trackResult;
 	}
 
+	
+	public Set<String> getCertificatesTrackQRList(List<String> qrList) {
+		Criteria cr = Criteria.where("qrcode").in(qrList);
+		Query query = new Query();
+		query.addCriteria(cr);
+		query.fields().include("qrcode");
+		List<CertificateTrack>  trackResult = (List<CertificateTrack> ) mongoQueryMgr.executeQuery(CertificateTrack.class, query);
+		Set<String> trackQrList = trackResult.stream().map(CertificateTrack::getQrcode).distinct().collect(Collectors.toSet());
+		return trackQrList;
+	}
 	private Criteria handleQRGenDateCriteria(Map<String, String> queryMap) throws OriginException {
 		String startDate = queryMap.get("startDate");
 		String endDate = queryMap.get("endDate");		
@@ -272,6 +297,13 @@ public class CertificatesAnalyticsService {
 		return null;
 	}
 	
+	private Criteria handelLatestScanStatus(Map<String, String> queryMap) {
+		String value = queryMap.get("latestScanStatus");
+		if(StringUtils.isEmpty(value)) return null;
+		Criteria cc = Criteria.where("latestScanStatus").is(Integer.parseInt(value));
+		queryMap.remove("latestScanStatus");
+		return cc;
+	}
 	private String appendCount(float count) {
 		return "("+NumberUtil.floatToString(count)+")";
 	}

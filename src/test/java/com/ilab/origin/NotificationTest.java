@@ -21,7 +21,7 @@ public class NotificationTest {
 	public void testNotification()  {
 		TrackingData trackingData = new TrackingData();
 		trackingData.setMerchantId("10000");
-		trackingData.setMerchantName("Durga Ghee");
+		//trackingData.setMerchantName("Durga Ghee");
 		trackingData.setLotNumber("TestLot100");
 		ProductOwner po = new ProductOwner();
 		po.setPersonName("Anil Sinha");

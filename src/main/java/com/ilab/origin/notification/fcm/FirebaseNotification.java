@@ -63,13 +63,13 @@ public class FirebaseNotification implements NotificationService {
 	public void sendTrackingUpdate(TrackingData trackingData) {
 		// The topic name can be optionally prefixed with "/topics/".
 		String topic = getTopicName(trackingData.getMerchantId());//"shipment-" + trackingData.getMerchantId();
-
+		log.info("sending firebase message on topic   " + topic +"  for tracking data " + trackingData  );
 		Notification notification = new Notification("Shipment Update", "Shipment with LotNumber : " + trackingData.getLotNumber() + "  is received by " + trackingData.getOwner().getPersonName());
 		// See documentation on defining a message payload.
 		Message message = Message.builder()
 		    .putData("LotNumber", trackingData.getLotNumber())
 		    .putData("Owner Name", trackingData.getOwner().getPersonName())
-		    .putData("Merchant Name", trackingData.getMerchantName())
+		  //  .putData("Merchant Name", trackingData.getMerchantName())
 		    .setNotification(notification)
 		    .setTopic(topic)
 		    .build();

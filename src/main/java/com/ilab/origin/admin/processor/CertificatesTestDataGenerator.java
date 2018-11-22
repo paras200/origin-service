@@ -1,6 +1,8 @@
 package com.ilab.origin.admin.processor;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,7 @@ import com.ilab.origin.certificates.to.CertificatesTO;
 import com.ilab.origin.certificates.to.Student;
 import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.mobileapp.model.AppUser;
+import com.ilab.origin.mobileapp.service.AppUserService;
 import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.usermgt.model.Location;
 import com.ilab.origin.usermgt.model.Merchant;
@@ -45,6 +48,9 @@ public class CertificatesTestDataGenerator {
 	
 	@Autowired
 	private CertificatesValidationService certService;
+	
+	@Autowired
+	private AppUserService appUserSvc;
 	
 	@PostConstruct
 	public void init() {
@@ -72,6 +78,37 @@ public class CertificatesTestDataGenerator {
 		buList.add("infy@infosys.com, INFOSYS");
 	}
 	
+	public void addTestUser() {
+		for (String userDetails : userList) {
+			AppUser appUser = new AppUser();
+			String[] userDArr = userDetails.split(",");
+			appUser.setUserId(userDArr[0]);
+			appUser.setFirstName(userDArr[1]);
+			appUser.setUserType(AppUser.USER_TYPE_INDIVIDUAL);
+			
+			try {
+				appUserSvc.registerNewUser(appUser);
+			} catch (OriginException e) {
+				log.error("test user addintion failed");
+			}
+		}
+		
+		for (String userDetails : buList) {
+			AppUser appUser = new AppUser();
+			String[] userDArr = userDetails.split(",");
+			appUser.setUserId(userDArr[0]);
+			appUser.setFirstName(userDArr[1]);
+			appUser.setBusinessName(userDArr[1]);
+			appUser.setUserType(AppUser.USER_TYPE_BUSINESS);
+			
+			try {
+				appUserSvc.registerNewUser(appUser);
+			} catch (OriginException e) {
+				log.error("test business user addintion failed");
+			}
+		}
+	}
+	
 	@SuppressWarnings("unchecked")
 	public void generateTestData(String institutesName, Integer userScanPercentage , Integer businessScanPercentage, boolean generateQR , String merchantId) throws OriginException {
 		List<Certificates> cList = null;
@@ -96,7 +133,10 @@ public class CertificatesTestDataGenerator {
 				for (int i = 0; i < 5; i++) {
 					Student s1 = new Student();
 					s1.setStudentName(getRandomUser());
-					s1.setDateOfBirth("10/01/" +2001+i);
+					Calendar cal = Calendar.getInstance();
+					cal.set(2001 +i, 10, i);
+					Date date = cal.getTime();
+					s1.setDateOfBirth("10/10/"+ 2001+i);
 					students.add(s1);
 				}
 				bulkCertificatesTO.setStudents(students);

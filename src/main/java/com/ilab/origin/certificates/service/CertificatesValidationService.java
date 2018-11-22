@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,11 +31,15 @@ import com.ilab.origin.common.model.QueryParamTO;
 import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.common.utils.DateUtils;
 import com.ilab.origin.common.utils.ValidationUtils;
+import com.ilab.origin.feedback.mode.FeedBackData;
+import com.ilab.origin.feedback.service.FeedbackService;
 import com.ilab.origin.serial.SerialNumberGenerator;
 import com.ilab.origin.serial.UUIDSerialization;
 import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.validator.model.OriginStatus;
 import com.ilab.origin.validator.model.OriginTrack;
+
+
 
 @RestController
 @CrossOrigin(origins = "*")
@@ -52,6 +58,12 @@ public class CertificatesValidationService {
 	
 	@Autowired
 	private CertificateTrackRecorder certificatesRecorder;
+	
+	@Autowired
+	private CertificatesAnalyticsService certAnalyticService;
+	
+	@Autowired
+	private FeedbackService feedbackService;
 	
 	@PostMapping("/generate-qrcode")	
 	public List<Certificates> saveAllQRCode(@RequestBody CertificatesTO inputData) throws OriginException{		
@@ -72,6 +84,7 @@ public class CertificatesValidationService {
 			certificates.setStudentName(student.getStudentName());
 			certificates.setDateOfBirth(student.getDateOfBirth());
 			certificates.setCertificateId(student.getCertificateId());
+			certificates.setCertIssueDate(student.getCertIssueDate());
 			
 			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX + slgenerator.getSequenceNumber());
 			System.out.println("qr code : " + certificates.getQrCode());
@@ -103,21 +116,8 @@ public class CertificatesValidationService {
 			certificates.setDateOfBirth(student.getDateOfBirth());
 			certificates.setCertificateId(student.getCertificateId());
 			certificates.setInstituteName(student.getInstituteName());
-			
-			//int index = 0;
-			/*for (int index =0; index < headerList.size() ; index++) {
-				if("CourseName".equalsIgnoreCase(headerList.get(index))) {
-					certificates.setCourseName(studentData.get(index));
-				}else if("InstituteName".equalsIgnoreCase(headerList.get(index))) {
-					certificates.setInstituteName(studentData.get(index));
-				}else if("StudentName".equalsIgnoreCase(headerList.get(index))) {
-					certificates.setStudentName(studentData.get(index));
-				}else if("DateOfBirth".equalsIgnoreCase(headerList.get(index))) {
-					certificates.setDateOfBirth(studentData.get(index));
-				}else if("CertificateId".equalsIgnoreCase(headerList.get(index))) {
-					certificates.setCertificateId(studentData.get(index));
-				}
-			}*/
+			certificates.setCertIssueDate(student.getCertIssueDate());
+			certificates.setCourseName(student.getCourseName());
 			
 			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX + slgenerator.getSequenceNumber());
 			certList.add(certificates);
@@ -140,6 +140,12 @@ public class CertificatesValidationService {
 			
 			CertificateTrack certificateTrack = populateCertificatesTrack(originTrack , certificate);
 			certificatesRecorder.asyncSave(certificateTrack);
+			
+			if(certificate.getLatestScanStatus() == OriginStatus.NO_SCAN) {
+				certificate.setLatestScanStatus(OriginStatus.GREEN);
+				certRepo.save(certificate);
+			}
+			
 		}else {
 			certificate = new Certificates();
 			certificate.setStatusCode(OriginStatus.RED);
@@ -174,12 +180,17 @@ public class CertificatesValidationService {
 		String merchantId = queryMap.get("merchantId");
 		
 		ValidationUtils.validateInputParam(merchantId);
-		
+		Criteria latestScanCritera =  handelLatestScanStatus(queryMap);
 		Criteria qrDateCriteria = handleQRGenDateCriteria(queryMap);
 		List<Criteria> criteriaList = mongoQueryMgr.createCriteriaList(queryMap);
 		if(criteriaList != null && qrDateCriteria != null) {
 			criteriaList.add(qrDateCriteria);
 		}
+		
+		if(latestScanCritera != null) {
+			criteriaList.add(latestScanCritera);
+		}
+		
 		
 		Query query = mongoQueryMgr.createQuery(criteriaList);
 		
@@ -191,10 +202,39 @@ public class CertificatesValidationService {
 			Certificates od = (Certificates) resObj;
 			updatedResult.add(od);
 		}
-		
+		updateScanStatus(updatedResult);
+		updateUserFeedbackInfo(updatedResult);
 		return updatedResult;
 	}
 	
+	private Criteria handelLatestScanStatus(Map<String, String> queryMap) {
+		String value = queryMap.get("latestScanStatus");
+		if(StringUtils.isEmpty(value)) return null;
+		Criteria cc = Criteria.where("latestScanStatus").is(Integer.parseInt(value));
+		queryMap.remove("latestScanStatus");
+		return cc;
+	}
+
+	private void updateUserFeedbackInfo(List<Certificates> result) {
+		List<String> qrList = result.stream().map(Certificates::getQrCode).collect(Collectors.toList());
+		Map<String, FeedBackData> datamap = feedbackService.getFeedbackDataByQrcodes(qrList);
+		for (Certificates od : result) {
+			if(datamap.get(od.getQrCode()) != null){
+				od.setUserFeeback(true);
+			}
+		}
+	}
+	
+	private void updateScanStatus(List<Certificates> updatedResult) {
+		// TODO Auto-generated method stub
+		List<String> qrList = updatedResult.stream().map(Certificates::getQrCode).collect(Collectors.toList());
+		Set<String> qrTrackList = certAnalyticService.getCertificatesTrackQRList(qrList);
+		List<Certificates> filteredList =  updatedResult.stream().filter(c -> qrTrackList.contains(c.getQrCode())).collect(Collectors.toList());
+		for (Certificates certificates : filteredList) {
+			certificates.setLatestScanStatus(OriginStatus.GREEN);
+		}
+	}
+
 	private Criteria handleQRGenDateCriteria(Map<String, String> queryMap) throws OriginException {
 		String startDate = queryMap.get("startDate");
 		String endDate = queryMap.get("endDate");		
@@ -214,4 +254,5 @@ public class CertificatesValidationService {
 		}
 		return null;
 	}
+	
 }

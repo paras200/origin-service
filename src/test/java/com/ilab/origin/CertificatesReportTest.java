@@ -1,6 +1,7 @@
 package com.ilab.origin;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import com.ilab.origin.certificates.service.CertificatesValidationService;
 import com.ilab.origin.certificates.to.CertificatesTO;
 import com.ilab.origin.certificates.to.ReportResult;
 import com.ilab.origin.certificates.to.Student;
+import com.ilab.origin.common.model.QueryParamTO;
 import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.validator.model.OriginTrack;
 
@@ -42,11 +44,13 @@ public class CertificatesReportTest {
 		List<Student> students = new ArrayList<>();
 		Student s1 = new Student();
 		s1.setStudentName("Raj Singh");
-		s1.setDateOfBirth("10/01/2001");
+		Calendar cal = Calendar.getInstance();
+		cal.set(2001, 10, 01);
+		s1.setDateOfBirth("01/10/2001");
 		students.add(s1);
 		Student s2 = new Student();
 		s2.setStudentName("Aks Singh");
-		s2.setDateOfBirth("10/01/2002");
+		s2.setDateOfBirth("01/05/2005");
 		students.add(s2);
 		bulkCertificatesTO.setStudents(students);
 		List<Certificates> cList = certValidationService.saveAllQRCode(bulkCertificatesTO);
@@ -54,6 +58,20 @@ public class CertificatesReportTest {
 		for (Certificates certificates : cList) {
 			qrlist.add(certificates.getQrCode());
 		}
+	}
+	
+	@Test
+	public void testQRSearch() throws OriginException {
+		Map<String, String> queryMap = new HashMap<>();
+		queryMap.put("merchantId", "2000");
+		queryMap.put("latestScanStatus", "-1");
+		QueryParamTO paramTO = new QueryParamTO();
+		paramTO.setPageNum(0);
+		paramTO.setPageSize(100);
+		paramTO.setQueryMap(queryMap);
+		List<Certificates> rr = certValidationService.getValidationData(paramTO);
+		System.out.println("*** result size :" + rr.size());
+		System.out.println(rr);
 	}
 	
 	@Test

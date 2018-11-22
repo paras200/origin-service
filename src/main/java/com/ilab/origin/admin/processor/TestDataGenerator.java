@@ -17,6 +17,9 @@ import org.springframework.stereotype.Component;
 import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.feedback.mode.FeedBackData;
 import com.ilab.origin.feedback.service.FeedbackService;
+import com.ilab.origin.mobileapp.model.AppUser;
+import com.ilab.origin.mobileapp.service.AppUserService;
+import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.usermgt.model.Location;
 import com.ilab.origin.validator.model.OriginData;
 import com.ilab.origin.validator.model.OriginTrack;
@@ -39,6 +42,9 @@ public class TestDataGenerator {
 	@Autowired
 	private FeedbackService feedBkService;
 	
+	@Autowired
+	private AppUserService appUserSvc;
+	
 	@PostConstruct
 	public void init() {
 		locationList.add("Hyde");
@@ -56,6 +62,21 @@ public class TestDataGenerator {
 		userList.add("ayan@gmail.com, Ayan Sinha");
 	}
 	
+	public void addTestUser() {
+		for (String userDetails : userList) {
+			AppUser appUser = new AppUser();
+			String[] userDArr = userDetails.split(",");
+			appUser.setUserId(userDArr[0]);
+			appUser.setUserType(userDArr[1]);
+			
+			try {
+				appUserSvc.registerNewUser(appUser);
+			} catch (OriginException e) {
+				log.error("test user addintion failed");
+			}
+		}
+		
+	}
 	public void generateTestData(String lotNum, Integer scanPercentage , Integer feedback) {
 		Map<String, String> queryMap = new HashMap<String, String>();
 		queryMap.put("lotNumber", lotNum);
