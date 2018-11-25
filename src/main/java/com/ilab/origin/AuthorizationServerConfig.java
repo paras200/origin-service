@@ -43,7 +43,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Value("${security.jwt.resource-ids}")
     private String resourceIds;
 
-   @Autowired
+    @Autowired
     private  TokenStore tokenStore;
 
     @Autowired
