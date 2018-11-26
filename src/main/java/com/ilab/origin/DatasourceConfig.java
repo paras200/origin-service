@@ -55,7 +55,7 @@ public class DatasourceConfig {
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(@Qualifier("datasource") DataSource ds) throws PropertyVetoException{
         LocalContainerEntityManagerFactoryBean entityManagerFactory = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactory.setDataSource(ds);
-        entityManagerFactory.setPackagesToScan("com.ilab.origin.usermgt.model");
+        entityManagerFactory.setPackagesToScan("com.ilab.origin");
         JpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
         entityManagerFactory.setJpaVendorAdapter(jpaVendorAdapter);
         entityManagerFactory.setJpaProperties(additionalProperties());

@@ -36,7 +36,7 @@ import io.swagger.annotations.Api;
 
 @RestController
 @CrossOrigin(origins = "*")
-@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
+//@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 public class UserService {
 
 	private static Log log = LogFactory.getLog(UserService.class.getName());
