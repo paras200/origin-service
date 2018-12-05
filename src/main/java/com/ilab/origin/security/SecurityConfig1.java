@@ -5,8 +5,8 @@ import org.springframework.context.annotation.Configuration;
 //import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 //import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 
-@Configuration
-public class SecurityConfig {//extends WebSecurityConfigurerAdapter {
+//@Configuration
+public class SecurityConfig1 {//extends WebSecurityConfigurerAdapter {
 
 	/*		protected void configure(AuthenticationManagerBuilder auth)
 				throws Exception {

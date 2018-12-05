@@ -8,6 +8,7 @@ import java.util.UUID;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,9 +31,12 @@ import com.ilab.origin.usermgt.repo.UserRepository;
 import com.ilab.origin.validator.model.LoginResult;
 import com.ilab.origin.validator.model.Result;
 
+import io.swagger.annotations.Api;
+
 
 @RestController
 @CrossOrigin(origins = "*")
+//@PreAuthorize("hasAnyRole('ROLE_ADMIN')")
 public class UserService {
 
 	private static Log log = LogFactory.getLog(UserService.class.getName());
