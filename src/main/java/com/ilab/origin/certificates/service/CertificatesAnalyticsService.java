@@ -13,6 +13,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ilab.origin.certificates.model.CertificateTrack;
 import com.ilab.origin.certificates.model.Certificates;
+import com.ilab.origin.certificates.repo.CertificatesRepo;
 import com.ilab.origin.certificates.to.ReportResult;
 import com.ilab.origin.common.mongo.MongoQueryManager;
 import com.ilab.origin.common.utils.DateUtils;
@@ -31,6 +34,7 @@ import com.ilab.origin.common.utils.ValidationUtils;
 import com.ilab.origin.mobileapp.model.AppUser;
 import com.ilab.origin.tracker.error.OriginException;
 
+@EnableAsync
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping(path="/certificates-report")
@@ -41,6 +45,14 @@ public class CertificatesAnalyticsService {
 	@Autowired
 	private MongoQueryManager mongoQueryMgr;
 	
+	@Autowired
+	private CertificatesRepo certRepo;
+	
+	@Async
+	public void saveAsync(Certificates certificates) {
+		certRepo.save(certificates);
+		log.info("async : updated certificates ..." + certificates);
+	}
 
 	@RequestMapping(value="/get-scan-hist" , method = { RequestMethod.GET, RequestMethod.POST })
 	public List<CertificateTrack> getScanHistory(@RequestParam(value="qrcode") String qrcode){

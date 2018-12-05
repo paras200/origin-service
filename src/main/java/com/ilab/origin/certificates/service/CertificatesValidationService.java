@@ -143,7 +143,7 @@ public class CertificatesValidationService {
 			
 			if(certificate.getLatestScanStatus() == OriginStatus.NO_SCAN) {
 				certificate.setLatestScanStatus(OriginStatus.GREEN);
-				certRepo.save(certificate);
+				certAnalyticService.saveAsync(certificate);
 			}
 			
 		}else {
@@ -206,6 +206,7 @@ public class CertificatesValidationService {
 		updateUserFeedbackInfo(updatedResult);
 		return updatedResult;
 	}
+	
 	
 	private Criteria handelLatestScanStatus(Map<String, String> queryMap) {
 		String value = queryMap.get("latestScanStatus");

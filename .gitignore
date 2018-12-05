@@ -1,2 +1,9 @@
-/target/
-*.log
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Maven
+target/
+logs/
