@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hamcrest.Condition.Step;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -38,6 +39,7 @@ import com.ilab.origin.serial.UUIDSerialization;
 import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.validator.model.OriginStatus;
 import com.ilab.origin.validator.model.OriginTrack;
+import com.ilab.origin.validator.model.Result;
 
 
 
@@ -207,6 +209,21 @@ public class CertificatesValidationService {
 		return updatedResult;
 	}
 	
+
+	@PostMapping("/update-cert-url")	
+	public Result updateCertificatesUrl(@RequestBody Map<String, String> qrCodeMap) throws OriginException{	
+		if(qrCodeMap != null && qrCodeMap.size() > 0) {
+			Set<String> qrCodeSet = qrCodeMap.keySet();
+			Criteria criteria =  mongoQueryMgr.addToInQuery("qrCode", new ArrayList<>(qrCodeSet));
+			Query query = mongoQueryMgr.createQuery(criteria);
+			List<Certificates> certList = (List<Certificates>) mongoQueryMgr.executeQuery(Certificates.class, query);
+			certList.stream().forEach(x -> {
+				x.setCertUrl(qrCodeMap.get(x.getQrCode()));
+			});
+			certRepo.save(certList);
+		}
+		return new Result();
+	}
 	
 	private Criteria handelLatestScanStatus(Map<String, String> queryMap) {
 		String value = queryMap.get("latestScanStatus");
