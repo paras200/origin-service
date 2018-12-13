@@ -222,7 +222,7 @@ public class CertificatesValidationService {
 			@SuppressWarnings("unchecked")
 			List<Certificates> certList = (List<Certificates>) mongoQueryMgr.executeQuery(Certificates.class, query);
 			certList.stream().forEach(x -> {
-				x.setCertUrl(qrCodeMap.get(x.getQrCode()));
+				x.setProductUrldata(qrCodeMap.get(x.getQrCode()));
 			});
 			certRepo.save(certList);
 		}

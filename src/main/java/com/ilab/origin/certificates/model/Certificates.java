@@ -51,7 +51,7 @@ public class Certificates implements QRData{
 	
 	private String qrType = QR_TYPE;
 	private String fileId;	
-	private String certUrl;
+	private String productUrldata;
 	
 	// Transient field not saved
 	private int statusCode;
@@ -171,11 +171,11 @@ public class Certificates implements QRData{
 	}
 	
 	
-	public String getCertUrl() {
-		return certUrl;
+	public String getProductUrldata() {
+		return productUrldata;
 	}
-	public void setCertUrl(String certUrl) {
-		this.certUrl = certUrl;
+	public void setProductUrldata(String productUrldata) {
+		this.productUrldata = productUrldata;
 	}
 	@Override
 	public String toString() {
