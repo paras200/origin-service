@@ -3,6 +3,7 @@ package com.ilab.origin.certificates.service;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -10,16 +11,17 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hamcrest.Condition.Step;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ilab.origin.certificates.model.CertificateTrack;
@@ -216,6 +218,8 @@ public class CertificatesValidationService {
 			Set<String> qrCodeSet = qrCodeMap.keySet();
 			Criteria criteria =  mongoQueryMgr.addToInQuery("qrCode", new ArrayList<>(qrCodeSet));
 			Query query = mongoQueryMgr.createQuery(criteria);
+			
+			@SuppressWarnings("unchecked")
 			List<Certificates> certList = (List<Certificates>) mongoQueryMgr.executeQuery(Certificates.class, query);
 			certList.stream().forEach(x -> {
 				x.setCertUrl(qrCodeMap.get(x.getQrCode()));
@@ -223,6 +227,28 @@ public class CertificatesValidationService {
 			certRepo.save(certList);
 		}
 		return new Result();
+	}
+	
+	@GetMapping("/get-scan-hist")	
+	public List<CertificateTrack> getCertificatesScanHistory(@RequestParam(value="userid") String userId) throws OriginException{	
+		Map<String, String> queryMap = new HashMap<>();
+		queryMap.put("userId", userId);
+		
+		@SuppressWarnings("unchecked")
+		List<CertificateTrack> results = (List<CertificateTrack>) mongoQueryMgr.executeQuery(queryMap, CertificateTrack.class);
+		return results;
+	}
+	
+	@GetMapping("/has-user-scanned-before")	
+	public Boolean hasUserAlreadyScannedit(@RequestParam(value="userid") String userId, @RequestParam(value="qrcode") String qrcode) throws OriginException{	
+		Map<String, String> queryMap = new HashMap<>();
+		queryMap.put("userId", userId);
+		queryMap.put("qrcode", qrcode);
+		
+		@SuppressWarnings("unchecked")
+		List<CertificateTrack> results = (List<CertificateTrack>) mongoQueryMgr.executeQuery(queryMap, CertificateTrack.class);
+		if(results.size() > 0) return new Boolean(true);
+		return new Boolean(false);
 	}
 	
 	private Criteria handelLatestScanStatus(Map<String, String> queryMap) {

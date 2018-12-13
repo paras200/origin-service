@@ -19,6 +19,7 @@ public class CertificateTrack {
 	@Id
     public String id;
 	
+	@Indexed
 	private String qrcode;
 	
 	@Indexed
