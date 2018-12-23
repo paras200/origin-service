@@ -78,7 +78,7 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("KoinSutra Services")
+                .title("Origin Services")
                 .build();
     }
 }
