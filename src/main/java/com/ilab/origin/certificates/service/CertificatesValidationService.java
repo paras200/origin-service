@@ -36,8 +36,8 @@ import com.ilab.origin.common.utils.DateUtils;
 import com.ilab.origin.common.utils.ValidationUtils;
 import com.ilab.origin.feedback.mode.FeedBackData;
 import com.ilab.origin.feedback.service.FeedbackService;
-import com.ilab.origin.serial.SerialNumberGenerator;
-import com.ilab.origin.serial.UUIDSerialization;
+import com.ilab.origin.serial.CryptoBasedQrGenerator;
+import com.ilab.origin.serial.QRGenerator;
 import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.validator.model.OriginStatus;
 import com.ilab.origin.validator.model.OriginTrack;
@@ -55,7 +55,9 @@ public class CertificatesValidationService {
 	@Autowired
 	private CertificatesRepo certRepo;
 	
-	private SerialNumberGenerator slgenerator = UUIDSerialization.getInstance();
+//	private SerialNumberGenerator slgenerator = UUIDSerialization.getInstance();
+	
+	private QRGenerator qrGenerator = new CryptoBasedQrGenerator();
 	
 	@Autowired
 	private MongoQueryManager mongoQueryMgr;
@@ -90,7 +92,7 @@ public class CertificatesValidationService {
 			certificates.setCertificateId(student.getCertificateId());
 			certificates.setCertIssueDate(student.getCertIssueDate());
 			
-			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX + slgenerator.getSequenceNumber());
+			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX + qrGenerator.generateQRCode(certificates.getKeyInputForSignature()));
 			System.out.println("qr code : " + certificates.getQrCode());
 			
 			certList.add(certificates);
@@ -123,7 +125,7 @@ public class CertificatesValidationService {
 			certificates.setCertIssueDate(student.getCertIssueDate());
 			certificates.setCourseName(student.getCourseName());
 			
-			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX + slgenerator.getSequenceNumber());
+			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX + qrGenerator.generateQRCode(certificates.getKeyInputForSignature()));
 			certList.add(certificates);
 		}
 		
@@ -222,7 +224,7 @@ public class CertificatesValidationService {
 			@SuppressWarnings("unchecked")
 			List<Certificates> certList = (List<Certificates>) mongoQueryMgr.executeQuery(Certificates.class, query);
 			certList.stream().forEach(x -> {
-				x.setProductUrldata(qrCodeMap.get(x.getQrCode()));
+				x.setProductUrl(qrCodeMap.get(x.getQrCode()));
 			});
 			certRepo.save(certList);
 		}
@@ -239,16 +241,16 @@ public class CertificatesValidationService {
 		return results;
 	}
 	
-	@GetMapping("/has-user-scanned-before")	
-	public Boolean hasUserAlreadyScannedit(@RequestParam(value="userid") String userId, @RequestParam(value="qrcode") String qrcode) throws OriginException{	
+	@GetMapping("/get-validation-fee")	
+	public String hasUserAlreadyScannedit(@RequestParam(value="userid") String userId, @RequestParam(value="qrcode") String qrcode) throws OriginException{	
 		Map<String, String> queryMap = new HashMap<>();
 		queryMap.put("userId", userId);
 		queryMap.put("qrcode", qrcode);
 		
 		@SuppressWarnings("unchecked")
 		List<CertificateTrack> results = (List<CertificateTrack>) mongoQueryMgr.executeQuery(queryMap, CertificateTrack.class);
-		if(results.size() > 0) return new Boolean(true);
-		return new Boolean(false);
+		if(results.size() > 0) return "0.0";
+		return "100";
 	}
 	
 	private Criteria handelLatestScanStatus(Map<String, String> queryMap) {

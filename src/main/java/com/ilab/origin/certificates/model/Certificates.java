@@ -5,10 +5,12 @@ import java.util.Date;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 
 import com.ilab.origin.common.model.QRData;
+import com.ilab.origin.tracker.error.OriginException;
 import com.ilab.origin.validator.model.OriginStatus;
 
 public class Certificates implements QRData{
@@ -51,7 +53,7 @@ public class Certificates implements QRData{
 	
 	private String qrType = QR_TYPE;
 	private String fileId;	
-	private String productUrldata;
+	private String productUrl;
 	
 	// Transient field not saved
 	private int statusCode;
@@ -171,18 +173,37 @@ public class Certificates implements QRData{
 	}
 	
 	
-	public String getProductUrldata() {
-		return productUrldata;
+	public String getProductUrl() {
+		return productUrl;
 	}
-	public void setProductUrldata(String productUrldata) {
-		this.productUrldata = productUrldata;
+	public void setProductUrl(String productUrl) {
+		this.productUrl = productUrl;
 	}
+	
 	@Override
 	public String toString() {
 		return "Certificates [qrCode=" + qrCode + ", universityName=" + universityName + ", studentName=" + studentName
 				+ "]";
 	}
 	
+	public String getKeyInputForSignature() throws OriginException {
+		StringBuilder sb = new StringBuilder();
+		addToText(sb, universityName);
+		addToText(sb, instituteName);
+		addToText(sb, courseName);
+		addToText(sb, studentName);
+		addToText(sb, dateOfBirth);
+		addToText(sb, certificateId);
+		addToText(sb, timeinmilli+"");
+		return sb.toString();
+	}
 	
+	private void addToText(StringBuilder sb, String data) throws OriginException {
+		if(StringUtils.isEmpty(data)) {
+			 throw new OriginException("Signature can't be generated as key fields are blank , please ensure the follwing fields are not NULL."
+			 		+ " universityName, instituteName, courseName , studentName, dateOfBirth , certificateId");
+		}
+		sb.append(data.trim().toLowerCase());
+	}
 	
 }

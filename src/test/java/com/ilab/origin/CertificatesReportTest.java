@@ -47,10 +47,12 @@ public class CertificatesReportTest {
 		Calendar cal = Calendar.getInstance();
 		cal.set(2001, 10, 01);
 		s1.setDateOfBirth("01/10/2001");
+		s1.setCertificateId("A123");
 		students.add(s1);
 		Student s2 = new Student();
 		s2.setStudentName("Aks Singh");
 		s2.setDateOfBirth("01/05/2005");
+		s2.setCertificateId("B456");
 		students.add(s2);
 		bulkCertificatesTO.setStudents(students);
 		List<Certificates> cList = certValidationService.saveAllQRCode(bulkCertificatesTO);
