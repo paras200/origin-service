@@ -1,6 +1,5 @@
-package com.ilab.origin.admin.service;
+package com.ilab.origin.security;
 
-//import com.adamzareba.spring.security.oauth2.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,11 +21,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         User user = userRepository.findByUserId(userId);
-
-        if (user != null) {
-            return (UserDetails) user;
+        if (user == null) {
+            throw new UsernameNotFoundException(String.format("No user found with username '%s'.", userId));
+        } else {
+            return JwtUserFactory.create(user);
         }
 
-        throw new UsernameNotFoundException(userId);
+        //throw new UsernameNotFoundException(userId);
     }
 }

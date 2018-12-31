@@ -5,7 +5,7 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 
-import com.ilab.origin.usermgt.model.User;
+import com.ilab.origin.security.JwtUser;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ import java.util.Map;
 public class CustomTokenEnhancer implements TokenEnhancer{
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken oAuth2AccessToken, OAuth2Authentication oAuth2Authentication) {
-        User user = (User) oAuth2Authentication.getPrincipal();
+    	JwtUser user = (JwtUser) oAuth2Authentication.getPrincipal();
         final Map<String, Object> additionalInfo = new HashMap<>();
 
         //additionalInfo.put("customInfo", "some_stuff_here");
