@@ -25,9 +25,9 @@ public class Authority {
     @SequenceGenerator(name = "authority_seq", sequenceName = "authority_seq", allocationSize = 1)
     private Long id;
 
-    @Column(name = "NAME", length = 50)
+    /*@Column(name = "NAME", length = 50)
     @NotNull
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING)*/
     private AuthorityName name;
 
     @ManyToMany(mappedBy = "authorities", fetch = FetchType.LAZY)

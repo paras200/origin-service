@@ -88,5 +88,10 @@ public class EmailClient {
 		}
 
 	}
+	
+	public void sendCertificateScanEmail(String body) {
+		
+
+	}
 
 }

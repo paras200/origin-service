@@ -1,4 +1,4 @@
-package com.ilab.origin;
+package com.ilab.origin.security;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 /**
  * Created by nydiarra on 06/05/17.

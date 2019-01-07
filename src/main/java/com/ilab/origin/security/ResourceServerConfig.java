@@ -1,4 +1,4 @@
-package com.ilab.origin;
+package com.ilab.origin.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
