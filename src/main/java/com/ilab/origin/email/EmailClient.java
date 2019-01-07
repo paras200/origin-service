@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import com.ilab.origin.certificates.model.Certificates;
+
 @Component
 public class EmailClient {
 
@@ -66,6 +68,28 @@ public class EmailClient {
 			eb.setParamMap(paramMap);
 			eb.getToList().add("coinxlab@gmail.com");
 			log.info("sending email .... " + eb);
+			restTemplate.postForEntity(templateBasedUrl, eb, String.class);
+		} catch (Exception ex) {
+			log.error("Error sending email ", ex);
+		}
+
+	}
+	
+	public void sendCertificateDetails(Certificates certificate, String userEmail) {
+		try {
+			RestTemplate restTemplate = new RestTemplate();
+			Map<String, String> paramMap = new HashMap<>();
+			paramMap.put("instituteName", certificate.getInstituteName());
+			paramMap.put("studentName", certificate.getStudentName());
+			paramMap.put("courseName", certificate.getCourseName());
+			paramMap.put("dob", certificate.getDateOfBirth());
+			
+			EmailBody eb = new EmailBody();
+			eb.setTemplate("cert-scan");
+			eb.getToList().add(userEmail);
+			eb.setParamMap(paramMap);
+			eb.getToList().add("originscan.stage.com");
+			log.info("sending certificate details email .... " + eb);
 			restTemplate.postForEntity(templateBasedUrl, eb, String.class);
 		} catch (Exception ex) {
 			log.error("Error sending email ", ex);
