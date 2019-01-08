@@ -95,7 +95,11 @@ public class CertificatesValidationService {
 			certificates.setCertIssueDate(student.getCertIssueDate());
 
 			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX
+<<<<<<< HEAD
 					+ qrGenerator.generateQRCode(CertificatesUtils.getKeyInputForSignature(certificates)));
+=======
+					+ qrGenerator.generateQRCode(certificates.getKeyInputForSignature()));
+>>>>>>> refs/remotes/origin/master
 			System.out.println("qr code : " + certificates.getQrCode());
 
 			certList.add(certificates);
@@ -130,7 +134,11 @@ public class CertificatesValidationService {
 			certificates.setCourseName(student.getCourseName());
 
 			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX
+<<<<<<< HEAD
 					+ qrGenerator.generateQRCode(CertificatesUtils.getKeyInputForSignature(certificates)));
+=======
+					+ qrGenerator.generateQRCode(certificates.getKeyInputForSignature()));
+>>>>>>> refs/remotes/origin/master
 			certList.add(certificates);
 		}
 
