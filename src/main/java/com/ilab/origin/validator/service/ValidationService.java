@@ -410,8 +410,13 @@ public class ValidationService {
 				vd = repository.save(vd);	
 			}
 			
-			vd.setStatusCode(OriginStatus.GREEN);
-			vd.setMessage(OriginStatus.getStatusMessage(OriginStatus.GREEN));
+			if(readOnly) {
+				vd.setStatusCode(OriginStatus.READ_ONLY);
+				vd.setMessage(OriginStatus.getStatusMessage(OriginStatus.READ_ONLY));
+			}else {
+				vd.setStatusCode(OriginStatus.GREEN);
+				vd.setMessage(OriginStatus.getStatusMessage(OriginStatus.GREEN));
+			}
 			oTrack.setProductName(vd.getProductName());
 			oTrack.setManufacturerName(vd.getManufacturerName()); // TODO to add
 			updateOrginTrack(oTrack , vd);

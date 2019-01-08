@@ -186,24 +186,4 @@ public class Certificates implements QRData{
 				+ "]";
 	}
 	
-	public String getKeyInputForSignature() throws OriginException {
-		StringBuilder sb = new StringBuilder();
-		addToText(sb, universityName);
-		addToText(sb, instituteName);
-		addToText(sb, courseName);
-		addToText(sb, studentName);
-		addToText(sb, dateOfBirth);
-		addToText(sb, certificateId);
-		addToText(sb, timeinmilli+"");
-		return sb.toString();
-	}
-	
-	private void addToText(StringBuilder sb, String data) throws OriginException {
-		if(StringUtils.isEmpty(data)) {
-			 throw new OriginException("Signature can't be generated as key fields are blank , please ensure the follwing fields are not NULL."
-			 		+ " universityName, instituteName, courseName , studentName, dateOfBirth , certificateId");
-		}
-		sb.append(data.trim().toLowerCase());
-	}
-	
 }
