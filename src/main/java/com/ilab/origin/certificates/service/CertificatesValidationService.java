@@ -1,6 +1,6 @@
 package com.ilab.origin.certificates.service;
 
-import java.text.ParseException;
+import java.text.ParseException; 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -94,8 +94,7 @@ public class CertificatesValidationService {
 			certificates.setCertificateId(student.getCertificateId());
 			certificates.setCertIssueDate(student.getCertIssueDate());
 
-			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX
-					+ qrGenerator.generateQRCode(certificates.getKeyInputForSignature()));
+			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX	+ qrGenerator.generateQRCode(CertificatesUtils.getKeyInputForSignature(certificates)));
 			System.out.println("qr code : " + certificates.getQrCode());
 
 			certList.add(certificates);
@@ -130,7 +129,7 @@ public class CertificatesValidationService {
 			certificates.setCourseName(student.getCourseName());
 
 			certificates.setQrCode(Certificates.CERTIFICATES_QR_PREFIX
-					+ qrGenerator.generateQRCode(certificates.getKeyInputForSignature()));
+					+ qrGenerator.generateQRCode(CertificatesUtils.getKeyInputForSignature(certificates)));
 			certList.add(certificates);
 		}
 
