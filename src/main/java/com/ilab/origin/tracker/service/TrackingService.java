@@ -94,6 +94,10 @@ public class TrackingService {
 		return generator.getSequenceNumber(count);
 	}
 	
+	public List<TransactionInfo> getallQRData(String merchantId){
+		return tiRepo.findByMerchantId(merchantId);
+	}
+	
 	@RequestMapping(value="/get-lot-number" , method = { RequestMethod.GET, RequestMethod.POST })
 	public String getSequenceNumber(){
 		 generator = TimestampSerialization.getInstance();

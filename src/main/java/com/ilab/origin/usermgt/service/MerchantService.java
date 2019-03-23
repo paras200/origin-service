@@ -59,6 +59,11 @@ public class MerchantService {
 		return mkeyList;
 	}
 	
+	//@GetMapping("/get-all-merchants") used for admin service	
+	public List<Merchant> findAllMerchants(){		
+		return repository.findAll();
+	}
+	
 	@GetMapping("/is-merchant-key-availble")	
 	public boolean checkIfExist(@RequestParam(value="merchantKey") String merchantKey){		
 		log.info(" retreive merchant detail for :" + merchantKey);
